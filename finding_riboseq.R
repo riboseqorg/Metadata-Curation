@@ -18,4 +18,5 @@ basic_terms <- c("ribo", "footprint", "RPF", "RFP", "80S", "MNAse", "translatome
 first_batch <- termindexer(basic_terms, dt)
 second_batch <- termindexer(c("rp", "rf", "fp"),  dt[!(Run %in% first_batch$Run),][,c('Run','LibraryName','sample_title'), ])
 
-fwrite(first_batch, "RiboSeq_Metadata_All_Columns.csv")
+fwrite(first_batch, "temp_files/RiboSeq_Metadata_All_Columns.csv")
+fwrite(second_batch, "temp_files/RiboSeq_Metadata_second_batch.csv")
