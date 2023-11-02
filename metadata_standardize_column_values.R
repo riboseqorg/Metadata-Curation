@@ -1,5 +1,6 @@
 library(ORFik); library(data.table); library(readxl); library(BiocParallel)
 library(massiveNGSpipe)
+
 # devtools::load_all()
 findFromPath <- ORFik:::findFromPath
 content <-  googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
@@ -85,8 +86,8 @@ for (j in seq_along(l)) {
 colnames(dt) <- core_cols$Column
 lapply(dt, function(x) table(x))
 
-
-column_usage_check(dt)
+# This function is not present in the script!
+# column_usage_check(dt)
 
 dt_st <- copy(dt)
 colnames(dt_st) <- paste0(colnames(dt_st), "_st")

@@ -1,5 +1,6 @@
 library(data.table)
 library(ORFik)
+
 studies <- sapply(system("ls SraRunInfo/SraRunInfo*", intern = TRUE), fread, USE.NAMES = TRUE, simplify = FALSE)
 studies <- lapply(studies, function(x) as.data.table(apply(x,2, function(y) as.character(y))))
 names(studies) <- names(studies) %>%  sub(".*SraRunInfo_","",.) %>% sub(".csv","",.)

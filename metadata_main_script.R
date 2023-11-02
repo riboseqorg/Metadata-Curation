@@ -13,11 +13,13 @@ column_usage_check <- function(dt, step_string = "first standardization") {
   return(b)
 }
 
+
 # Checks the R session directory is the main "riboseqorg_metadata" dir
 if (basename(getwd()) != "riboseqorg_metadata") {
   cat("Warning: The working directory is not set to 'riboseqorg_metadata'. 
       temp_files will be produced in current directory.\n")
 } 
+
 
 # set up temp file directory within project
 dir.create(file.path(dirname("."), "temp_files"))
