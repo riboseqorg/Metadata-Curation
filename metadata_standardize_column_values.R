@@ -29,7 +29,7 @@ SRA_cols <- colnames(SRA_cols)
 SRA_cols <- SRA_cols[!(SRA_cols %in% c("sample_title", "Info", "sample_source", "LibraryName", "ScientificName"))]
 SRA_to_id <- x[, c("Run", "BioProject"), with = F]
 fwrite(SRA_to_id, file = "temp_files/SRA_ids.csv")
-x <- x[,!(colnames(x) %in% SRA_cols), with = F]
+# x <- x[,!(colnames(x) %in% SRA_cols), with = F]
 
 
 ############# Standardize columns

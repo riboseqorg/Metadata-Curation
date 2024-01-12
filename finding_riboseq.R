@@ -19,5 +19,9 @@ basic_terms <- c("ribo", "footprint", "RPF", "RFP", "80S", "MNAse", "translatome
 first_batch <- termindexer(basic_terms, dt)
 second_batch <- termindexer(c("rp", "rf", "fp"),  dt[!(Run %in% first_batch$Run),][,c('Run','LibraryName','sample_title'), ])
 
+# If the samples in the samples whitelist are not in the termindex with the high quality terms then 
+# search the second tier list. If found include. If not found then search the main df. 
+#If missing from there then there is an issue with the BioProjects whitelist. 
+#All samples on the whitelist should have their BioProjects in the in the BioProjects whitelist
 fwrite(first_batch, "temp_files/RiboSeq_Metadata_All_Columns.csv")
 fwrite(second_batch, "temp_files/RiboSeq_Metadata_second_batch.csv")

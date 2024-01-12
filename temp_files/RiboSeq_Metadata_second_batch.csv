@@ -844,6 +844,16 @@ SRR22580675,GSM6807054,Rpb1ChIP_WT_Replicate_3
 SRR22580674,GSM6807055,Rpb1ChIP_dcp2_Replicate_1
 SRR22580673,GSM6807056,Rpb1ChIP_dcp2_Replicate_2
 SRR22580672,GSM6807057,Rpb1ChIP_dcp2_Replicate_3
+SRR22865491,GSM6886868,"mitoRP, LRPPRC KO + LSFC point mutant, rep 1"
+SRR22865490,GSM6886869,"mitoRP, LRPPRC KO + LSFC point mutant, rep 2"
+SRR22865489,GSM6886870,"RNA-seq, LRPPRC KO + LSFC point mutant, rep 1"
+SRR22865488,GSM6886871,"RNA-seq, LRPPRC KO + LSFC point mutant, rep 2"
+SRR22865485,GSM6886874,"RNA-seq, LRPPRC KO, rep 1"
+SRR22865484,GSM6886875,"RNA-seq, LRPPRC KO, rep 2"
+SRR22865483,GSM6886876,"RNA-seq, LRPPRC KO+LRPPRC WT, rep 1"
+SRR22865482,GSM6886877,"RNA-seq, LRPPRC KO+LRPPRC WT, rep 2"
+SRR22865481,GSM6886878,"RNA-seq, LRPPRC KO+LSFC point mutant, rep 1"
+SRR22865480,GSM6886879,"RNA-seq, LRPPRC KO+LSFC point mutant, rep 2"
 SRR23205031,GSM6965692,𝚫rrpA/B conidia 1
 SRR23205030,GSM6965693,𝚫rrpA/B conidia 2
 SRR23205029,GSM6965694,𝚫rrpA/B conidia 3
@@ -930,6 +940,10 @@ SRR24044784,RPL39l_1_20_1_RNASEQ,
 SRR24044783,RPL39l_1_20_2_RNASEQ,
 SRR24044782,RPL39l_1_20_3_RNASEQ,
 SRR24044781,RPL39l_2_9_1_RNASEQ,
+SRR24230484,GSM7191426,Interphase TIS Input RNA rep 1
+SRR24230479,GSM7191428,Interphase elongating Input RNA rep 1
+SRR24230478,GSM7191430,Interphase TIS Input RNA rep 2
+SRR24230477,GSM7191432,Interphase elongating Input RNA rep 2
 DRR395100,"RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), blue-light irradation, rep1","RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), blue-light irradation rep1"
 DRR395101,"RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), blue-light irradation, rep2","RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), blue-light irradation rep2"
 DRR395102,"RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), dark condition, rep1","RNA-seq of Arabiodpsis thaliana seedling: norflurazon (inhibitor), dark condition rep1"
@@ -938,6 +952,10 @@ ERR3445479,nrf1-1_+Fe root_s,nrf1-1_+Fe root
 ERR3445480,nrf1-1_-Fe root_s,nrf1-1_-Fe root
 ERR3445481,nrf1-2_+Fe root_s,nrf1-2_+Fe root
 ERR3445482,nrf1-2_-Fe root_s,nrf1-2_-Fe root
+SRR26989805,GSM7923449,"RRL with FVBeta-UGG and eRF1-AAQ, replicate 1"
+SRR26989806,GSM7923449,"RRL with FVBeta-UGG and eRF1-AAQ, replicate 1"
+SRR26989793,GSM7923455,"RRL with FVBeta-UGG and eRF1-AAQ, replicate 2"
+SRR26989794,GSM7923455,"RRL with FVBeta-UGG and eRF1-AAQ, replicate 2"
 SRR2052967,,Interferon treatment cytosol mRNA-seq (Rep 1)
 SRR2052968,,Interferon treatment ER mRNA-seq (Rep 1)
 SRR2052979,,Interferon treatment cytosol mRNA-seq (Rep 2)
@@ -1116,6 +1134,12 @@ SRR25939213,GSM7696010,hiPSC Pro-TGG upstream edit BRF1 ChIP-Seq rep1
 SRR25939212,GSM7696011,hiPSC Pro-TGG upstream edit BRF1 ChIP-Seq rep2
 SRR25939211,GSM7696012,NPC Pro-TGG upstream edit BRF1 ChIP-Seq rep1
 SRR25939210,GSM7696013,NPC Pro-TGG upstream edit BRF1 ChIP-Seq rep2
+SRR24332956,D425_sgASNSD1-uORF_3,D425
+SRR24332955,D425_sgASNSD1-uORF_2,D425
+SRR24332954,D425_sgASNSD1-uORF_1,D425
+SRR24333913,D283_sgASDURF_3,D283Med
+SRR24333912,D283_sgASDURF_2,D283Med
+SRR24333911,D283_sgASDURF_1,D283Med
 SRR24451450,GSM7304543,"Per2uORF mutant male, RNAseq ZT02-04, rep1"
 SRR24451449,GSM7304544,"Per2uORF mutant male, RNAseq ZT02-04, rep2"
 SRR24451448,GSM7304545,"Per2uORF mutant male, RNAseq ZT02-04, rep3"
@@ -1561,3 +1585,7 @@ SRR23111205,GSM6940600,H3EYFP sRNA req1
 SRR23111204,GSM6940601,H3EYFP sRNA req2
 SRR23951084,RNAseq-fpb1-1,
 SRR23951083,RNAseq-fpb1-2,
+SRR24016023,GSM7124017,Fpt1-TAP ChIP-exo 5.0 NKI5623 Replicate 1
+SRR24016022,GSM7124018,Fpt1-TAP ChIP-exo 5.0 NKI5623 Replicate 2
+SRR24016021,GSM7124019,Fpt1-TAP ChIP-exo 5.0 NKI5632-1 Replicate 1
+SRR24016020,GSM7124020,Fpt1-TAP ChIP-exo 5.0 NKI5632-1 Replicate 2

@@ -3,7 +3,9 @@ library(googledrive); library(massiveNGSpipe)
 # devtools::load_all()
 findFromPath <- ORFik:::findFromPath
 input_file_path <- "temp_files/standardized_columns_with_original.csv"
-final_file_path <- "temp_files/standardized_columns_final.csv"
+
+today_date <- format(Sys.Date(), "%Y-%m-%d")
+final_file_path <- paste0("temp_files/standardized_columns_final_", today_date, ".csv")
 
 
 x_st <- fread(input_file_path)
