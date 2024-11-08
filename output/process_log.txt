@@ -1,4 +1,4 @@
-Process started at: 2024-11-08 12:40:30.155665
+Process started at: 2024-11-08 15:41:40.345278
 Output directory: /data/output
 Temporary directory: /data/temp_files
 SRA directory: /data/SraRunInfo
@@ -477,20 +477,6 @@ https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fas
 Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
 Running script: finding_riboseq.R
 Running script: metadata_cleanup_columns.R
-Running script: metadata_standardize_column_values.R
-Private (not open for public) samples detected, they were removed!
-New names:
-• `CELL_LINE` -> `CELL_LINE...1`
-• `TISSUE` -> `TISSUE...2`
-• `sample_title` -> `sample_title...3`
-• `Info` -> `Info...4`
-• `sample_source` -> `sample_source...5`
-• `LibraryName` -> `LibraryName...6`
-• `CELL_LINE` -> `CELL_LINE...7`
-• `TISSUE` -> `TISSUE...8`
-• `sample_title` -> `sample_title...9`
-• `Info` -> `Info...10`
-• `sample_source` -> `sample_source...11`
-• `LibraryName` -> `LibraryName...12`
-Running script: metadata_standardized_columns_post_cleanup.R
-Process completed successfully at: 2024-11-08 12:48:34.549987
+Error occurred: object 'duplicated_col_names' not found
+Error in eval(ei, envir) : object 'duplicated_col_names' not found
+Calls: main ... tryCatch -> tryCatchList -> tryCatchOne -> <Anonymous>

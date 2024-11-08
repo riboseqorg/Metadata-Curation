@@ -16,7 +16,7 @@ content <- content[, non_empty_cols, with = FALSE]
 print("content")
 colnames(content) <- c("Category","Column", "mainName", "allNames")
 
-x <- fread("/data/temp_files/filtered_riboseq_done_260623.csv")
+x <- fread("/data/temp_files/filtered_riboseq_done.csv")
 print("read X")
 
 # Table info
