@@ -1,0 +1,2 @@
+abstract
+"High-throughput sequencing analysis of transcriptome from LPS-activated B cells from Lymph node of Zfp36l1(fl/fl) and Zfp36l1(fl/fl) x Cd79a(Cre/+) mice Overall design: The RNA-seq libraries were prepared using ARTseq Ribosome Profiling Kit, ten libraries were pooled and sequenced on two lanes of HiSeq 2500, after quality control both FASTQ files for each sample were concatenated and mapped as one."

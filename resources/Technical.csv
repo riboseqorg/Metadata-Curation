@@ -1,0 +1,10 @@
+Main Name ,All Names
+UMI,"""UMI"", ""umi"""
+Adapter,"""adapter sequence"", ""adapter"", ""depletion step"""
+Separation,"""separation"", ""Separation"", ""monosome enrichment strategy"", ""cushion_gradient"""
+rRNA_depletion,"rRNA depletion"", ""rrna depletion"", ""rrna subtraction strategy"", ""rrna removal"", ""depletion strategy"", ""total rna selection method"", ""transcriptome"""
+Barcode,"""barcode"", ""Barcode"", ""barcode sequence"", ""index sequence"", ""index name"""
+Monosome_purification,"""monosome enrichment strategy"", ""monosome purification"", ""Monosome purification"""
+Nuclease,"""nuclease_digestion"", ""rnase concentration"""
+Kit,"""library preparation"", ""used_oligo_set"", ""library preparation kit"", ""scriptminer index"""
+Info,"""isolate"", ""Title"", ""sample_type"", ""Sample Name"", ""sample type"", ""rna isolation"", ""library_method"", ""information"", ""sample name"", ""sample_name"", ""sample info"", ""rpl10 form"", ""Submitter Id"", ""library construction"", ""procedure"", ""source"", ""source_name"", ""cell synchronization"", ""note"", ""origin"", ""Experimental Factor: stimulus"", ""subject status"", ""detailed_experiment"", ""phenotype"""

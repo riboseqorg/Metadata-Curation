@@ -1,0 +1,606 @@
+Category,Column,Main Name,All Names
+Library Names,LIBRARYTYPE,RNA,"rna-seq, Rna-seq, RNA-seq, RNA-Seq, RNASeq, RNAseq, RNA seq, RNASEQ, rnaseq, Input, input, total RNA, Total RNA, total_RNA, totalRNA,TotalRNA_, _Total_, mRNA$,  mRNA ,_mrna_, _RNA_, _rna_, ^rna_, ^RNA_, ^mrna_, ^RNA , ^mRNA , ^mRNA_, \\.rna$, \\.mrna, _RNA$, _rna$,PolyA"
+Library Names,LIBRARYTYPE,RFP,"RFP, RPF, ribo-seq, ribo-Seq, Ribo-seq, Ribo-Seq, Ribo_seq, riboseq, Riboseq, RiboSeq, Ribosome, ribosome, Profiling,profiling, Ribo\\.prof, Footprint, ribo_profile, footprint, ^Ribo_, ^ribo_, ^Ribo ,^ribo_, _ribo_, _Ribo_,_ribo$, _Ribo$, \\.ribo, ^Rib\\.prof, ^RP ,  RP , _RP_, ^FP_, ^fp_, _fp_,RP$, rp$, _rp_, \\.rp\\., _RF, RIBOSEQ, RIBO-SEQ"
+Library Names,LIBRARYTYPE,QTI,QTI
+Library Names,LIBRARYTYPE,CAGE,"CAGE, cage"
+Library Names,LIBRARYTYPE,LSU,"80S,LSU"
+Library Names,LIBRARYTYPE,SSU,"40S,SSU"
+Library Names,LIBRARYTYPE,PRPF,PRPF
+Library Names,LIBRARYTYPE,ATAC,ATAC
+Library Names,LIBRARYTYPE,ChIP,ChIP
+Library Names,LIBRARYTYPE,CLIP,"PAR-CLIP, CLIP-Seq, CLIP-seq, iCLIP"
+Library Names,LIBRARYTYPE,tRNA,tRNA
+Library Names,LIBRARYTYPE,PAS,"PAS-Seq, ^PAS_"
+Library Names,LIBRARYTYPE,miRNA,miRNA
+Library Names,LIBRARYTYPE,GRO,"GRO-seq, GROseq, PRO-seq, PROseq"
+Library Names,LIBRARYTYPE,PAL,PAL-Seq
+Library Names,LIBRARYTYPE,RIP,"RIP-Seq, RIP-seq, ^rip_"
+Library Names,LIBRARYTYPE,SHAPE,"SHAPE, Shape "
+Stage Names ,STAGE,unfertilized,"unfertilized, Unfertilized, _0h, _00h, 0hpf, ^0h_,  0 h ,  0h , 0hrs"
+Stage Names,STAGE,fertilized,"_fertilized, _Fertilized"
+Stage Names,STAGE,2to4Cell,"2to4Cell, 2to4cell, 2to4_cell, 2-4cell, 2-4Cell, 2-4_cell"
+Stage Names,STAGE,4Cell,"4cell, 4Cell, 4_cell, _1h, _01h, 1hpf, ^1h_,  1 h ,  1h "
+Stage Names,STAGE,8Cell,"8cell, 8Cell, 8_cell"
+Stage Names,STAGE,64Cell,"64cell, 64Cell, 64-cell, 64_cell, 64_Cell, _2h, _02h, 2hpf, ^2h_,  2 h ,  2h , 2hrs"
+Stage Names,STAGE,256Cell,"256cell, 256Cell, 256_cell, 256_Cell"
+Stage Names,STAGE,512Cell,"512cell, 512Cell, 512_cell"
+Stage Names,STAGE,1KCell,"1Kcell, 1KCell, 1K_cell, _3h, _03h, 3hpf, ^3h_,  3 h ,  3h , 3hrs"
+Stage Names,STAGE,High,High
+Stage Names,STAGE,Oblong,"Oblong, oblong"
+Stage Names,STAGE,Sphere,"Sphere, sphere, _4h, _04h,4hpf, ^4h_,  4 h ,  4h , 4hrs"
+Stage Names,STAGE,Dome,"Dome, dome"
+Stage Names,STAGE,epiboly,"epiboly, _5h, _05h,5hpf, ^5_,  5 h ,  5h , 5hrs"
+Stage Names,STAGE,Shield,"Shield, shield, _6h, _06h, 6hpf, ^6h_,  6 h ,  6h , 6hrs"
+Stage Names,STAGE,7hpf,"_7h, _07h, 7hpf, ^7h_,  7 h ,  7h , 7hrs"
+Stage Names,STAGE,8hpf,"_8h, _08h, 8hpf, ^8h_,  8 h ,  8h , 8hrs"
+Stage Names,STAGE,9hpf,"_9h, _09h, 9hpf, ^9h_,  9 h ,  9h , 9hrs"
+Stage Names,STAGE,Bud,"Bud, bud, _10h, 10hpf, ^10h_,  10 h ,  10h , 10hrs"
+Stage Names,STAGE,Somite,"Somite, somite, _12h, 12hpf, ^12h_,  12 h ,  12h , 12hrs"
+Stage Names,STAGE,24hpf,"24hpf, _24h, 1dfp, ^24h_,  24h ,  24 h ,  24h , 24hrs"
+Stage Names,STAGE,prim6,"prim6, prim_6, 25hpf, _25h, ^25h_"
+Stage Names,STAGE,prim10,"prim10, prim_10, 27hpf, _27h, ^27h_"
+Stage Names,STAGE,prim12,"prim12, prim_12, 28hpf, _28h, ^28h_"
+Stage Names,STAGE,prim20,"prim20, prim_20, 33hpf, _33h, ^33h_"
+Stage Names,STAGE,2dpf,"2dpf, _48h, _48hpf, ^48h_,  48 h ,  48h "
+Stage Names,STAGE,3dpf,"3dpf,  72h "
+Stage Names,STAGE,4dpf,4dpf
+Stage Names,STAGE,5dpf,5dp
+Stage Names,STAGE,6dpf,6dpf
+Stage Names,STAGE,10dpf,10dpf
+Stage Names,STAGE,21dpf,21dpf
+Stage Names,STAGE,24dpf,24dpf
+Timepoint,TIMEPOINT,0h,"unfertilized, Unfertilized, _0h, _00h, 0hpf, ^0h_,  0 h ,  0h , 0hrs"
+Timepoint,TIMEPOINT,10min,"_fertilized, _Fertilized"
+Timepoint,TIMEPOINT,40min,"2to4Cell, 2to4cell, 2to4_cell, 2-4cell, 2-4Cell, 2-4_cell"
+Timepoint,TIMEPOINT,1h,"4cell, 4Cell, 4_cell, _1h, _01h, 1hpf, ^1h_,  1 h ,  1h "
+Timepoint,TIMEPOINT,1h15min,"8cell, 8Cell, 8_cell"
+Timepoint,TIMEPOINT,2h,"64cell, 64Cell, 64-cell, 64_cell, 64_Cell, _2h, _02h, 2hpf, ^2h_,  2 h ,  2h , 2hrs"
+Timepoint,TIMEPOINT,2h30min,"256cell, 256Cell, 256_cell, 256_Cell"
+Timepoint,TIMEPOINT,2h45min,"512cell, 512Cell, 512_cell"
+Timepoint,TIMEPOINT,3h,"1Kcell, 1KCell, 1K_cell, _3h, _03h, 3hpf, ^3h_,  3 h ,  3h , 3hrs"
+Timepoint,TIMEPOINT,3h20min,High
+Timepoint,TIMEPOINT,3h40min,"Oblong, oblong"
+Timepoint,TIMEPOINT,4h,"Sphere, sphere, _4h, _04h,4hpf, ^4h_,  4 h ,  4h , 4hrs"
+Timepoint,TIMEPOINT,4h20min,"Dome, dome"
+Timepoint,TIMEPOINT,5h,"epiboly, _5h, _05h,5hpf, ^5_,  5 h ,  5h , 5hrs"
+Timepoint,TIMEPOINT,6h,"Shield, shield, _6h, _06h, 6hpf, ^6h_,  6 h ,  6h , 6hrs"
+Timepoint,TIMEPOINT,7h,"_7h, _07h, 7hpf, ^7h_,  7 h ,  7h , 7hrs"
+Timepoint,TIMEPOINT,8h,"_8h, _08h, 8hpf, ^8h_,  8 h ,  8h , 8hrs"
+Timepoint,TIMEPOINT,9h,"_9h, _09h, 9hpf, ^9h_,  9 h ,  9h , 9hrs"
+Timepoint,TIMEPOINT,10h,"Bud, bud, _10h, 10hpf, ^10h_,  10 h ,  10h , 10hrs"
+Timepoint,TIMEPOINT,12h,"Somite, somite, _12h, 12hpf, ^12h_,  12 h ,  12h , 12hrs"
+Timepoint,TIMEPOINT,24h,"24hpf, _24h, 1dfp, ^24h_,  24h, 24 h,  24h , 24hrs, 24 hours, 24 hrs"
+Timepoint,TIMEPOINT,25h,"prim6, prim_6, 25hpf, _25h, ^25h_, 25 hours, 25 hrs"
+Timepoint,TIMEPOINT,26h,"26hpf, _26, ^26h_, 26 hours, 26 hrs"
+Timepoint,TIMEPOINT,27h,"prim10, prim_10, 27hpf, _27h, ^27h_, 27 hours, 27 hrs"
+Timepoint,TIMEPOINT,28h,"prim12, prim_12, 28hpf, _28h, ^28h_, 28 hours, 28 hrs"
+Timepoint,TIMEPOINT,33h,"prim20, prim_20, 33hpf, _33h, ^33h_, , 33 hours, 33 hrs"
+Timepoint,TIMEPOINT,2d,"2dpf, _48h, _48hpf, ^48h_, 48 h,  48h  , 48 hours, 48 hrs"
+Timepoint,TIMEPOINT,3d,"3dpf,  72h , , 72 hours, 72 hrs"
+Timepoint,TIMEPOINT,4d,4dpf
+Timepoint,TIMEPOINT,5d,5dp
+Timepoint,TIMEPOINT,6d,6dpf
+Timepoint,TIMEPOINT,10d,10dpf
+Timepoint,TIMEPOINT,21d,21dpf
+Timepoint,TIMEPOINT,24d,24dpf
+Tissue,TISSUE,adipose,"adipose, Adipose, Adipocyte, adipocyte"
+Tissue,TISSUE,amygdala,"amygdala, Amygdala"
+Tissue,TISSUE,brain,"brain, Brain, hippocamp, Hippocamp, hippocampus, Cerebellum, cerebellum, cereb, Hypothalamus, hypothalamus"
+Tissue,TISSUE,bladder,"bladder, Bladder"
+Tissue,TISSUE,blood,"blood, Blood, plasma, Plasma"
+Tissue,TISSUE,bone,"bone, Bone, osteosarcoma, osteogenic"
+Tissue,TISSUE,breast,"breast, Breast, mammary gland, Mammary gland, Mammary Gland"
+Tissue,TISSUE,colon,"colon, Colon"
+Tissue,TISSUE,cortex,"cortex, Cortex"
+Tissue,TISSUE,eye,"eye, Eye"
+Tissue,TISSUE,frontal_lobe,"frontal_lobe, frontal lobe, Frontal_lobe"
+Tissue,TISSUE,heart,"heart, Heart, ventricle, Ventricle"
+Tissue,TISSUE,intestine,"intestin, Intestin"
+Tissue,TISSUE,kidney,"kidney, Kidney, Renal, renal"
+Tissue,TISSUE,liver,"liver, Liver"
+Tissue,TISSUE,lung,"lung, Lung"
+Tissue,TISSUE,melanocyte,"Melanocyte, melanocyte"
+Tissue,TISSUE,mesenchymal,"mesenchym, Mesenchym"
+Tissue,TISSUE,muscle,"muscle, Muscle, myotubes, Myotubes"
+Tissue,TISSUE,myeloid,"myeloid, Myeloid"
+Tissue,TISSUE,ovary,"ovary, Ovary, ovaries, Ovaries"
+Tissue,TISSUE,neuron,"neuron, Neuron, neuro, Neuro"
+Tissue,TISSUE,prostate,"prostate, Prostate"
+Tissue,TISSUE,rectum,"rectum, Rectum, anus, Anus"
+Tissue,TISSUE,retina,"Retina, retina"
+Tissue,TISSUE,testis,"testis, Testis, testicles, Testicles, Testes, testes"
+Tissue,TISSUE,urinary,"urinary, Urinary"
+Tissue,TISSUE,vagina,"vagina, Vagina"
+Tissue,TISSUE,skin,"skin, Skin, Dermal, dermal"
+Tissue,TISSUE,tongue,"tongue, Tongue"
+Tissue,TISSUE,throat,"throat, Throat"
+Tissue,TISSUE,glioma,"glioma. glioma stem cells. glioma stem, glioblastoma, GBM"
+Tissue,TISSUE,root,"Root, root"
+Tissue,TISSUE,leaf,"leaf, Leaf, Leaves, leaves"
+Tissue,TISSUE,stem,"Stem, stem"
+Tissue,TISSUE,spleen,"Spleen, spleen"
+Tissue,TISSUE,mycelia,"mycelia, mycelium, Mycelia, Mycelium"
+Tissue,TISSUE,seedling,"seedling, Seedling"
+Tissue,TISSUE,spinal cord,"spinal cord, Spinal Cord, Spinal cord"
+Tissue,TISSUE,embryo,"embryo, Embryo"
+Tissue,TISSUE,flower,"flower,Flower"
+Tissue,TISSUE,shoot,"Shoot, shoot"
+Tissue,TISSUE,cervix,"Cervix, cervix"
+Tissue,TISSUE,whole organism,"whole organism, Whole Organism, Whole organism, whole animal, Whole Animal, Whole animal, whole worm, Whole Worm, Whole worm, Whole body, whole body, Whole Body"
+Tissue,TISSUE,oocyte,"oocyte, Oocyte"
+Tissue,TISSUE,pancreas,"pancreas, Pancreas,pancrease"
+Tissue,TISSUE,pollen,"Pollen, pollen"
+Tissue,TISSUE,cotyledon,"Cotyledon, cotyledon"
+Cell Lines,CELL_LINE,A2780,A2780
+Cell Lines,CELL_LINE,A549,A549
+Cell Lines,CELL_LINE,Calu3,"Calu 3, Calu3"
+Cell Lines,CELL_LINE,CN34,CN34
+Cell Lines,CELL_LINE,HEK293,"HEK293, Hek293, 293T, HEK_, T-REx, ^HEK$, HEK 293, human embryonic kidney"
+Cell Lines,CELL_LINE,HeLa,"HeLa, HELA, Hela, hela"
+Cell Lines,CELL_LINE,HepG2,HepG2
+Cell Lines,CELL_LINE,Hesc,"hesc, Hesc"
+Cell Lines,CELL_LINE,HCT116,"HCT116, HCT-116"
+Cell Lines,CELL_LINE,Hmel,Hmel
+Cell Lines,CELL_LINE,HSB2,HSB2
+Cell Lines,CELL_LINE,Huh7,Huh7
+Cell Lines,CELL_LINE,iPSC,"iPSC, ipsc"
+Cell Lines,CELL_LINE,K562,K562
+Cell Lines,CELL_LINE,MCF7,"MCF7, MCF-7"
+Cell Lines,CELL_LINE,MCF10A,"MCF10-A, MCF10A"
+Cell Lines,CELL_LINE,MDA-MB 231,"MDA-MB 231, MDA MB 231, MDA-MB-231"
+Cell Lines,CELL_LINE,MV4-11,MV4-11
+Cell Lines,CELL_LINE,NPC,"npc, NPC"
+Cell Lines,CELL_LINE,PANC1,PANC1
+Cell Lines,CELL_LINE,THP1,"THP-1, THP1"
+Cell Lines,CELL_LINE,T47D,T47D
+Cell Lines,CELL_LINE,PC3,"PC3, PC-3"
+Cell Lines,CELL_LINE,3T3,3T3
+Cell Lines,CELL_LINE,H1299,"H1299, h1299, CRL-5803"
+Cell Lines,CELL_LINE,E14,"E14, E14Tg2a"
+Cell Lines,CELL_LINE,U2-OS,"U2-OS, U2 OS, U2, U2OS, u2os"
+Cell Lines,CELL_LINE,H1,"H1$, H1 ES"
+Cell Lines,CELL_LINE,H9,H9
+Cell Lines,CELL_LINE,MARC-145,"MARC-145, MARC 145, MARC_145"
+Cell Lines,CELL_LINE,17-Cl1,"17-Cl1, 17 Cl1, 17_Cl1"
+Cell Lines,CELL_LINE,RAW264.7,"RAW264.7, RAW264"
+Cell Lines,CELL_LINE,mESC,"mESC J1,  mESC"
+Cell Lines,CELL_LINE,19PP,"19PP, 19 PP"
+Cell Lines,CELL_LINE,SUM159,"SUM159PT, SUM159"
+Cell Lines,CELL_LINE,Vero,"Vero, vero, VERO"
+Cell Lines,CELL_LINE,CGR8,CGR8
+Cell Lines,CELL_LINE,4T1,"4T1, 4t1"
+Cell Lines,CELL_LINE,BJ,"BJ, bj, Bj"
+Cell Lines,CELL_LINE,L929,"L929, L 929,NCTC Clone 929"
+Cell Lines,CELL_LINE,LoVo,"LoVo, CL-229, lovo, LOVO, Lo Vo"
+Cell Lines,CELL_LINE,P493,"P493,P-493"
+Cell Lines,CELL_LINE,S2,"Schneider2, S2"
+Cell Lines,CELL_LINE,KH2,KH2
+Cell Lines,CELL_LINE,LN308,"LN308, LN-308"
+Cell Lines,CELL_LINE,CHO,"CHO, CHO-K1"
+Cell Lines,CELL_LINE,LN-229,"LN-229, LN-229"
+Cell Lines,CELL_LINE,A-172,"A-172, A172"
+Cell Lines,CELL_LINE,U343,"U343, U-343"
+Cell Lines,CELL_LINE,MM1.S,"MM1.S, Mm1.S, Mm1.s"
+Cell Lines,CELL_LINE,Neuro-2a ,"Neuro-2a, Neuro2a, neuro-2a, neuro2a"
+Cell Lines,CELL_LINE,L929,L929
+Cell Lines,CELL_LINE,RPE1,"RPE1, RPE-1"
+Cell Lines,CELL_LINE,Mutu,"Mutu, MUTU"
+convertToTissue,TISSUE,ovary,A2780
+convertToTissue,TISSUE,lung,A549
+convertToTissue,TISSUE,lung,"Calu 3, Calu3"
+convertToTissue,TISSUE,breast,CN34
+convertToTissue,TISSUE,kidney,"HEK293, Hek293, 293T, HEK_, T-REx"
+convertToTissue,TISSUE,cervix,"HeLa, HELA, Hela, hela"
+convertToTissue,TISSUE,liver,HepG2
+convertToTissue,TISSUE,embryo,"hesc, Hesc"
+convertToTissue,TISSUE,colon,HCT116
+convertToTissue,TISSUE,breast,Hmel
+convertToTissue,TISSUE,blood,HSB2
+convertToTissue,TISSUE,liver,Huh7
+convertToTissue,TISSUE,NONE,"iPSC, ipsc"
+convertToTissue,TISSUE,bone,K562
+convertToTissue,TISSUE,breast,"MCF7, MCF-7"
+convertToTissue,TISSUE,breast,"MCF10-A, MCF10A"
+convertToTissue,TISSUE,breast,MDA-
+convertToTissue,TISSUE,blood,MV4-11
+convertToTissue,TISSUE,throat,"npc, NPC"
+convertToTissue,TISSUE,pancreas,PANC1
+convertToTissue,TISSUE,blood,"THP-1, THP1"
+convertToTissue,TISSUE,breast,T47D
+convertToTissue,TISSUE,prostate,"PC3, PC-3"
+convertToTissue,TISSUE,embryo,3T3
+convertToTissue,TISSUE,lung,"H1299, h1299, CRL-5803"
+convertToTissue,TISSUE,embryo,"E14, E14Tg2a"
+convertToTissue,TISSUE,bone,"U2-OS, U2 OS, U2, U2OS, u2os"
+convertToTissue,TISSUE,embryo,"H1, H1 ES"
+convertToTissue,TISSUE,embryo,H9
+convertToTissue,TISSUE,kidney,"MARC-145, MARC 145, MARC_145"
+convertToTissue,TISSUE,embryo,"17-Cl1, 17 Cl1, 17_Cl1"
+convertToTissue,TISSUE,blood,"RAW264.7, RAW264"
+convertToTissue,TISSUE,embryo,"mESC J1,  mESC"
+convertToTissue,TISSUE,blood,"19PP, 19 PP"
+convertToTissue,TISSUE,breast,"SUM159PT, SUM159"
+convertToTissue,TISSUE,kidney,"Vero, vero, VERO"
+convertToTissue,TISSUE,embryo,CGR8
+convertToTissue,TISSUE,breast,"4T1, 4t1"
+convertToTissue,TISSUE,skin,"BJ, bj, Bj"
+convertToTissue,TISSUE,adipose,"L929, L 929, NCTC Clone 929"
+convertToTissue,TISSUE,colon,"LoVo, CL-229, lovo, LOVO, Lo Vo"
+convertToTissue,TISSUE,blood,"P493,P-493"
+convertToTissue,TISSUE,embryo,"Schneider2, S2"
+convertToTissue,TISSUE,embryo,KH2
+convertToTissue,TISSUE,brain,"LN308, LN-308"
+convertToTissue,TISSUE,ovary,"CHO, CHO-K1"
+convertToTissue,TISSUE,brain,"LN-229, LN-229"
+convertToTissue,TISSUE,brain,"A-172, A172"
+convertToTissue,TISSUE,brain ,"U343, U-343"
+convertToTissue,TISSUE,bone,"MM1.S, Mm1.S, Mm1.s"
+convertToTissue,TISSUE,brain,"Neuro-2a, Neuro2a, neuro-2a, neuro2a"
+convertToTissue,TISSUE,NONE,L929
+convertToTissue,TISSUE,retina,"RPE1, RPE-1"
+convertToTissue,TISSUE,blood,"Mutu, MUTU"
+Replicate Names,REPLICATE,1,"rep1,  rep 1 , Rep1, rep-1,rep\\.1,replicate1, run1, run_1_, _r1_, WT1,  1$, _01$,  A$"
+Replicate Names,REPLICATE,2,"rep2,  rep 2 , Rep2, rep-2,rep\\.2,replicate2, run2, run_2_, _r2_, WT2,  2$, _02$,  B$"
+Replicate Names,REPLICATE,3,"rep3,  rep 3 , Rep3, rep-3,rep\\.3,replicate3, run3, run_3_, _r3_, WT3,  3$, _03$,  C$"
+Replicate Names,REPLICATE,4,"rep4,  rep 4 , Rep4, rep-4,rep\\.4,replicate4, run4, run_4_, _r4_, WT4,  4$, _04$,  D$"
+Replicate Names,REPLICATE,5,"rep5,  rep 5 , Rep5, rep-5,rep\\.5,replicate5, run5, run_5_, _r5_, WT5,  5$, _05$,  E$"
+Replicate Names,REPLICATE,6,"rep6,  rep 6 , Rep6, rep-6,rep\\.6,replicate6, run6, run_6_, _r6_, WT6,  6$, _06$,  F$"
+Replicate Names,REPLICATE,N,"repN,  rep N , RepN, rep-N,rep\\.N,replicateN, runN, run_N_, _rN_, WTN,  N$, biological replicate N, replicate N"
+Batch Name,BATCH,b1,"batch1, batch 1 , batch 1), set1"
+Batch Name,BATCH,b2,"batch2, batch 2 , batch 2), set2"
+Batch Name,BATCH,b3,"batch3, batch 3 , batch 3), set3"
+Batch Name,BATCH,b4,"batch4, batch 4 , batch 4), set4"
+Batch Name,BATCH,b5,"batch5, batch 5 , batch 5), set5"
+Batch Name,BATCH,b6,"batch6, batch 6 , batch 6), set6"
+Batch Name,BATCH,nB,"batchN, batch N , batch N), setN"
+Condition Name,CONDITION,WT,"WT, wt, wild_type, Wild_type, wild-type, untreated, control, Control, CTRL, Ctrl,Basal, _mock_,  mock "
+Condition Name,CONDITION,MZ,"MZ, dicer"
+Condition Name,CONDITION,4Ei,"4Ei, 4ei"
+Condition Name,CONDITION,Mutant,"mutant, Mutant"
+Condition Name,CONDITION,cas9,"Cas9, cas9"
+Condition Name,CONDITION,NMDA,NMDA
+Condition Name,CONDITION,DHPG,DHPG
+Condition Name,CONDITION,KD,"knockdown, Knockdown, _kd_,  KD , -KD , _KD_"
+Condition Name,CONDITION,KO,"knockout, Knockout,  KO , -KO , _KO_, -KO-, _ko_"
+Condition Name,CONDITION,DKO,"double knockout,  DKO , _DKO_"
+Condition Name,CONDITION,OE,"_OE_, _oe_, _OE$, _oe$"
+Condition Name,CONDITION,high,"high, \\+"
+Condition Name,CONDITION,low,low
+Inhibitor Name,INHIBITOR,INHIBITOR,"chloramphenicol, Chloramphenicol"
+Inhibitor Name,INHIBITOR,chx,"cycloheximide, Cycloheximide, chx, Chx, CHX, cyclohex, Cyclohex"
+Inhibitor Name,INHIBITOR,harr,"harringtonin, Harringtonin, _har_, _harr_, _harr$, _Harr$"
+Inhibitor Name,INHIBITOR,frozen,"frozen, freeze, freezing, noCHX, nochx, no drug"
+Inhibitor Name,INHIBITOR,lactim,"lactimidomycin, Lactimidomycin, ltm, _LTM$"
+Inhibitor Name,INHIBITOR,puro,"Puromycin,puromycin, _puro_"
+Inhibitor Name,INHIBITOR,anisomycin,"Anisomycin, anisomycin"
+Fraction Name,FRACTION,cyto,"cyto, Cyto, cyt, Cyt"
+Fraction Name,FRACTION,ER,ER
+Fraction Name,FRACTION,mito,mito
+Fraction Name,FRACTION,nuc,"_nuc_, nuclear"
+Fraction Name,FRACTION,dmso,"DMSO, dmso"
+Fraction Name,FRACTION,thaps,"Thapsigargin, thapsigargin"
+Fraction Name,FRACTION,auxin,auxin
+Fraction Name,FRACTION,silvestrol,silvestrol
+Fraction Name,FRACTION,fasting,fasting
+Fraction Name,FRACTION,membrane,"membrane, membr"
+Sex Name,Sex,male,"Male, MALE, male, M, m "
+Sex Name,Sex,female,"Female, FEMALE, female, M, f"
+Sex Name,Sex,M/F,"Mix of male/female, pooled male and female, mixed"
+Sex Name,Sex,hermaphrodite,"hermaphrodite, Hermaphrodite"
+Age,Age,,
+Age,Age,,
+Age,Age,,
+Age,Age,,
+Age,Age,,
+Age,Age,,
+Age,Age,,
+Disease Name,Disease,missing,"Missing, missing"
+Disease Name,Disease,dubowitz syndrome,Dubowitz Syndrome
+Disease Name,Disease,psi+,PSI+
+Disease Name,Disease,psi-,PSI-
+SiRNA Name,SiRNA,cnot1,"CNOT1 siRNA, CNOT1"
+SiRNA Name,SiRNA,eif3m,Eif3m
+SiRNA Name,SiRNA,control,"Control, Control siRNA"
+SiRNA Name,SiRNA,adar1,siADAR1
+SiRNA Name,SiRNA,luciferase,"UCGAAGUACUCAGCGUAAGdTdT/CUUACGCUGAGUACUUCGAdTdT, UCGAAGUACUCAGCGUAAGdT/CUUACGCUGAGUACUUCGA"
+SiRNA Name,SiRNA,prrc2a,PRRC2A
+SiRNA Name,SiRNA,prrc2b,PRRC2B
+SiRNA Name,SiRNA,prrc2c,PRRC2C
+SiRNA Name,SiRNA,,none
+SiRNA Name,SiRNA,gfp,GFP
+SiRNA Name,SiRNA,lin28a,"siLin28a, AUGUUCUUCCCUUUUGGCCdTdT/GGCCAAAAGGGAAGAACAUdTdT"
+SiRNA Name,SiRNA,scrambled,"scrambled ,  scrambled luciferase"
+SiRNA Name,SiRNA,P2_1,siP2_1
+SiRNA Name,SiRNA,P1_1,siP1_1
+SiRNA Name,SiRNA,P2_4,siP2_4
+ShRNA Name,ShRNA,BCDIN3D,shBCDIN3D
+ShRNA Name,ShRNA,nc,shNC
+ShRNA Name,ShRNA,Dhps,sh-Dhps
+ShRNA Name,ShRNA,control,"Non specific control,control, Control shRNA"
+ShRNA Name,ShRNA,EIF3A,anti-EIF3A shRNA_HLH mutant EIF3A
+ShRNA Name,ShRNA,mbnl1,Mbnl1
+ShRNA Name,ShRNA,mbnl2,Mbnl2
+ShRNA Name,ShRNA,EiF5A,sh-EiF5A
+ShRNA Name,ShRNA,METTL3,"METTL3 shRNA 1, METTL3 shRNA #12, METTL3 shRNA #9, METTL3 shRNA #9, METTL3 shRNA 2"
+ShRNA Name,ShRNA,METTL14,shMETTL14
+ShRNA Name,ShRNA,Ren,shRen
+ShRNA Name,ShRNA,EIF3A,anti-EIF3A shRNA_Control (CT) EIF3A
+ShRNA Name,ShRNA,SETD2,shSETD2
+SgRNA Name,SgRNA,NT2,"sgNT2, NT sgRNA #2"
+SgRNA Name,SgRNA,NT1,"sgNT1, NT sgRNA #1"
+SgRNA Name,SgRNA,METTL16,sgMETTL16
+SgRNA Name,SgRNA,ABCE1-2,sgABCE1-2
+SgRNA Name,SgRNA,ABCE1-1,sgABCE1-1
+SgRNA Name,SgRNA,mixed,mixed_mixed
+SgRNA Name,SgRNA,negative control,Negative control sgRNA
+SgRNA Name,SgRNA,EIF5A2,EIF5A sgRNA #2
+SgRNA Name,SgRNA,EIF5A1,EIF5A sgRNA #1
+SgRNA Name,SgRNA,DOHH2,DOHH sgRNA #2
+SgRNA Name,SgRNA,DOHH1,DOHH sgRNA #1
+Temperature,Temperature,C,"��C,deg,degrees Celsius"
+Temperature,Temperature,,Cooling
+,,,
+rRNA Depletion,rRNA_depletion,RiboZero-Gold,"RiboZero Gold, RiboZero-Gold, riboZero gold"
+rRNA Depletion,rRNA_depletion,RiboZero-Plus,"ribo-zero plus, RiboZero Plus"
+rRNA Depletion,rRNA_depletion,RiboZero,"RiboZero, Ribo-Zero"
+rRNA Depletion,rRNA_depletion,ribopools,ribopools
+rRNA Depletion,rRNA_depletion,QIAseq FastSelect  ,"QIAseq FastSelect, qiagen fastselect, fastselect"
+rRNA Depletion,rRNA_depletion,custom,"custom, Custom"
+rRNA Depletion,rRNA_depletion,riboCop,"RiboCop, ribocop"
+rRNA Depletion,rRNA_depletion,None,"None, none, undepleted, -"
+rRNA Depletion,rRNA_depletion,NEBNExt ,NEBNExt 
+kit,Kit,Nextflex,"Nextflex, Nextflex"
+kit,Kit,Lexogen,"Lexogen, Lexogen small RNA kit"
+kit,Kit,RiboCop,"RiboCop, ribocop, riboCop"
+kit,Kit,ScriptMiner,"ScriptMiner, scriptmine"
+kit,Kit,Takara/Clonentech,Takara/Clonentech
+kit,Kit,Ingolia/Bukau,Ingolia/Bukau
+cancer,Cancer,missing,nan
+cancer,Cancer,healthy,"Healthy, normal"
+cancer,Cancer,chronic lymphocytic leukemia,
+cancer,Cancer,chondrosarcoma,
+cancer,Cancer,acute myeloid leukemia,
+cancer,Cancer,non-small cell lung carcinoma,
+cancer,Cancer,colorectal carcinoma,
+cancer,Cancer,germinal center B cell lymphoma,germinal center B cell lymphoma (GCB)
+cancer,Cancer,activate B cell lymphoma,activate B cell lymphoma (ABC)
+cancer,Cancer,glioblastoma,"Glioblastoma,ud"
+cancer,Cancer,lung adenocarcinoma,lung adenocarcinoma
+cancer,Cancer,Emicro-Myc lymphoma,Emicro-Myc lymphoma
+cancer,Cancer,skin papilloma,skin papilloma
+cancer,Cancer,ovarian cancer,ovarian cancer
+cancer,Cancer,fibrocystic disease,fibrocystic disease
+cancer,Cancer,poorly metastatic,poorly metastatic
+cancer,Cancer,highly metastatic to lungs,highly metastatic to lungs
+cancer,Cancer,septic,Septic
+cancer,Cancer,no apparent disease,no apparent disease
+cancer,Cancer,metastatic,metastatic
+cancer,Cancer,primary tumor,primary tumor
+,,,
+miRNA Name,microRNA,missing,nan
+miRNA Name,microRNA,NONE,None
+miRNA Name,microRNA,hsa-miR-1,"has-miR-1, hsa-miR-1"
+miRNA Name,microRNA,hsa-miR-122,has-miR-122
+miRNA Name,microRNA,miR-1,"miR-1_TRUE, miR-1_FALSE"
+miRNA Name,microRNA,miR-155,"miR-155_TRUE, miR-155_FALSE"
+Individual,Individual,missing,nan
+Individual,Individual,ID18_ID18_,ID18_ID18_
+Individual,Individual,ID22_ID22_,ID22_ID22_
+Individual,Individual,ID25_ID25_,ID25_ID25_
+Individual,Individual,ID28_ID28_,ID28_ID28_
+Individual,Individual,ID29_ID29_,ID29_ID29_
+Individual,Individual,ID30_ID30_,ID30_ID30_
+Individual,Individual,ID31_ID31_,ID31_ID31_
+Individual,Individual,C1NA,C1NA
+Individual,Individual,C3NA,C3NA
+Individual,Individual,M2NA,M2NA
+Individual,Individual,W1NA,W1NA
+Individual,Individual,W3NA,W3NA
+Individual,Individual,C2NA,C2NA
+Individual,Individual,M1NA,M1NA
+Individual,Individual,M3NA,M3NA
+Individual,Individual,W2NA,W2NA
+Individual,Individual,101NA,101NA
+Individual,Individual,102NA,102NA
+Individual,Individual,103NA,103NA
+Individual,Individual,104NA,104NA
+Individual,Individual,105NA, 
+Individual,Individual,106NA,106NA
+Individual,Individual,107NA,107NA
+Individual,Individual,108NA,108NA
+Individual,Individual,110NA,110NA
+Individual,Individual,111NA,111NA
+Individual,Individual,142NA,142NA
+Individual,Individual,143NA,143NA
+Individual,Individual,144NA,144NA
+Individual,Individual,145NA,145NA
+Individual,Individual,147NA,147NA
+Individual,Individual,178NA,178NA
+Individual,Individual,179NA,179NA
+Individual,Individual,180NA,180NA
+Individual,Individual,181NA,181NA
+Individual,Individual,183NA,183NA
+Individual,Individual,193NA,193NA
+Individual,Individual,195NA,195NA
+Individual,Individual,197NA,197NA
+Individual,Individual,198NA,198NA
+Individual,Individual,112NA,112NA
+Individual,Individual,114NA,114NA
+Individual,Individual,115NA,115NA
+Individual,Individual,116NA,116NA
+Individual,Individual,117NA,117NA
+Individual,Individual,118NA,118NA
+Individual,Individual,119NA,119NA
+Individual,Individual,121NA,121NA
+Individual,Individual,123NA,123NA
+Individual,Individual,124NA,124NA
+Individual,Individual,126NA,126NA
+Individual,Individual,127NA,127NA
+Individual,Individual,128NA,128NA
+Individual,Individual,129NA,129NA
+Individual,Individual,130NA,130NA
+Individual,Individual,132NA,132NA
+Individual,Individual,133NA,133NA
+Individual,Individual,134NA,134NA
+Individual,Individual,135NA,135NA
+Individual,Individual,137NA,137NA
+Individual,Individual,138NA,138NA
+Individual,Individual,139NA,139NA
+Individual,Individual,140NA,140NA
+Individual,Individual,141NA,141NA
+Individual,Individual,148NA,148NA
+Individual,Individual,149NA,149NA
+Individual,Individual,151NA,151NA
+Individual,Individual,152NA,152NA
+Individual,Individual,153NA,153NA
+Individual,Individual,154NA,154NA
+Individual,Individual,155NA,155NA
+Individual,Individual,156NA,156NA
+Individual,Individual,157NA,157NA
+Individual,Individual,158NA,158NA
+Individual,Individual,160NA,160NA
+Individual,Individual,161NA,161NA
+Individual,Individual,162NA,162NA
+Individual,Individual,163NA,163NA
+Individual,Individual,164NA,164NA
+Individual,Individual,166NA,166NA
+Individual,Individual,167NA,167NA
+Individual,Individual,169NA,169NA
+Individual,Individual,170NA,170NA
+Individual,Individual,171NA,171NA
+Individual,Individual,172NA,172NA
+Individual,Individual,173NA,173NA
+Individual,Individual,174NA,174NA
+Individual,Individual,175NA,175NA
+Individual,Individual,177NA,177NA
+Individual,Individual,184NA,184NA
+Individual,Individual,185NA,185NA
+Individual,Individual,186NA,186NA
+Individual,Individual,187NA,187NA
+Individual,Individual,188NA,188NA
+Individual,Individual,189NA,189NA
+Individual,Individual,190NA,190NA
+Individual,Individual,191NA,191NA
+Individual,Individual,192NA,192NA
+Individual,Individual,106,106
+Individual,Individual,107,107
+Individual,Individual,108,108
+Individual,Individual,109,109
+Individual,Individual,111,111
+Individual,Individual,113,113
+Individual,Individual,118,118
+Individual,Individual,119,119
+Individual,Individual,120,120
+Individual,Individual,122,122
+Individual,Individual,125,125
+Individual,Individual,127,127
+Individual,Individual,NAAG53,NAAG54
+Individual,Individual,NAAF95,NAAF96
+Individual,Individual,1,1
+Individual,Individual,2,2
+Individual,Individual,3,3
+Individual,Individual,4,4
+Individual,Individual,NA_10,NA_11
+Individual,Individual,NA_9,NA_10
+Individual,Individual,NA_8, 
+Individual,Individual,NA_7,NA_8
+Individual,Individual,NA_B,NA_B
+Individual,Individual,NA_A,NA_A
+Individual,Individual,26,26
+Individual,Individual,27,27
+Individual,Individual,28,28
+Individual,Individual,29,29
+Individual,Individual,23,23
+Individual,Individual,24,24
+Individual,Individual,25, 
+Individual,Individual,13,13
+Individual,Individual,14,14
+Individual,Individual,15,15
+Individual,Individual,16,16
+Individual,Individual,50,50
+Individual,Individual,51,51
+Individual,Individual,71,71
+Individual,Individual,75,75
+Individual,Individual,70,70
+Individual,Individual,43,43
+Individual,Individual,52,52
+Individual,Individual,72,72
+Individual,Individual,76,76
+Individual,Individual,44,44
+Individual,Individual,53,53
+Individual,Individual,77,77
+Individual,Individual,73,73
+Individual,Individual,45,45
+Individual,Individual,74,74
+Individual,Individual,78,78
+Individual,Individual,54,54
+Individual,Individual,NA_LC001,NA_LC001
+Individual,Individual,NA_LC033,NA_LC033
+Individual,Individual,NA_LC034,NA_LC034
+Individual,Individual,NA_LC501,NA_LC501
+Individual,Individual,NA_LC502,NA_LC502
+Individual,Individual,NA_LC505,NA_LC505
+Individual,Individual,NA_LC506,NA_LC506
+Individual,Individual,NA_LC507,NA_LC507
+Individual,Individual,NA_LC508,NA_LC508
+Individual,Individual,NA_LC509,NA_LC509
+,,,
+Batch,Batch,missing,nan
+Batch,Batch,1,"1, Batch 1, batch1, Culture 1, Tissue culture dish 1"
+Batch,Batch,2,"2, Batch 2, batch2, Culture 2, Tissue culture dish 2"
+Batch,Batch,3,"3, Batch 3, Culture 3, Tissue culture dish 3"
+Batch,Batch,4,"4, Batch 4, batch4, Culture 4, Tissue culture dish 4"
+Batch,Batch,5,"5, batch5, Batch 5, Culture 5"
+Batch,Batch,6,"6, batch6"
+Batch,Batch,7,7
+Batch,Batch,passages 5-8,passages 5-8
+Batch,Batch,9,9
+Batch,Batch,24,24
+Batch,Batch,36,36
+,,,
+,,,
+Antibody,Antibody,NONE,"Null, nan, no, none, None, -"
+Antibody,Antibody,anti-FLAG M2,"yes (anti-FLAG, Sigma A2220)', 'anti-FLAG M2 magnetic beads (Sigma, Catalog# M8823, Lot# SLBL1128V)'"
+Antibody,Antibody,anti-eIF3h,"yes (goat polyclonal anit-eIF3b, sc16377)'"
+Antibody,Antibody,PRRC2C,PRRC2C
+Antibody,Antibody,IgG,IgG
+Antibody,Antibody,anti-HA,"anti-HA antibody (Abcam , catalog # ab9110)'"
+Antibody,Antibody,anti-ac4c,"anti-ac4C (Abcam, lot#H09131602)'"
+,,,
+Ethnicity,Ethnicity,Caucasian,"Caucasian, caucasian"
+Ethnicity,Ethnicity,African_American,African_American
+Ethnicity,Ethnicity,NONE,nan
+,,,
+Dose,Dose,NONE,nan
+Dose,Dose,0,"0, 0 ug/mL"
+Dose,Dose,500 ug/mL,500 ug/mL
+Dose,Dose,1000 ug/mL,1000 ug/mL
+Dose,Dose,2000 ug/mL,2000 ug/mL
+Dose,Dose,3000 ug/mL,3000 ug/mL
+Dose,Dose,0.02,0.02
+Dose,Dose,0.1,0.1
+Dose,Dose,0.5,0.5
+Dose,Dose,1,1
+Dose,Dose,2,2
+Dose,Dose,5,5
+Dose,Dose,10,10
+Dose,Dose,100,100
+Dose,Dose,10 uM,10 uM
+Dose,Dose,0.10%,0.10%
+,,,
+,,,
+Stimulation,Stimulation,untreated,"untreated, No"
+Stimulation,Stimulation,NONE,"nan, None"
+Stimulation,Stimulation,Yes,Yes
+Stimulation,Stimulation,osmotic shock,osmotic shock
+Stimulation,Stimulation,heat shock,heat shock
+Stimulation,Stimulation,hydrogen peroxide,hydrogen peroxide
+Stimulation,Stimulation,glucose depletion,glucose depletion
+Stimulation,Stimulation,cadmium,cadmium
+Stimulation,Stimulation,depolarised,depolarised
+Stimulation,Stimulation,LPS,"Mix of 0, 2, 4, 6, and 9 h LPS', 'Mix of 0, 1, 2, 4, 6, 8, 9, and 12 h LPS', 0.5 h LPS, 1 h LPS, 2 h LPS, 4 h LPS, 6 h LPS, 8 h LPS, 9 h LPS, 12 h LPS "
+Stimulation,Stimulation,mock,"mock, 0.5 h mock, 1 h mock, 2 h mock, 4 h mock, 6 h mock, 8 h mock, 9 h mock, 12 h mock"
+Stimulation,Stimulation,Doxycycline/LPS,6h Doxycycline/1h LPS
+Host,Host,missing,"Missing, missing, nan"
+Host,Host,Homo sapiens,Homo sapiens
+Host,Host,not applicable,not applicable

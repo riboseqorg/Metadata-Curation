@@ -1,0 +1,2 @@
+abstract
+"Generation of a Ribo-seq dataset for E. coli MG1655 for benchmarking Ribo-seq analysis tools Overall design: Ribosome profiling analysis of the E. coli translatome paired with transcriptome sequencing during log phase growth in LB. RBP1 - Ribosome profiling, ribosomes purified with sucrose density gradient S400-RBP1 - Ribosome profiling, ribosomes with size exclusion chromatography TR1 - RNA-sequencing"

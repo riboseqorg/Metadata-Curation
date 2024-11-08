@@ -1,0 +1,2 @@
+abstract
+To investigate the distribution of ribosomes in late-stage oocyte to infer their translational status. Overall design: Read patterns in Ribo_Seq libraries are used to infer local enrichment of ribosomes. Corresponding RNA_Seq libraries are used as control to filter out reads enrichment due to experimental artifact.

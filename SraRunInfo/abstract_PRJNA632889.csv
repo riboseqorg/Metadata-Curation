@@ -1,0 +1,2 @@
+abstract
+"We developed a novel algorithm, smORFer, detecting smORFs (e.g. <50 codons) which performs with higher accuracy in prokaryotic organisms. smORFer considers structural features of genetic sequence along with in-register translation and using Fourier transform converts them into a measurable score to faithfully select smORFs. The algorithm is executed in a modular way and dependent on the data available different modules can be tested. Overall design: Ribosome profiling of Staphylococcus aureus cultured in complex TBS medium"

@@ -1,0 +1,2 @@
+abstract
+"We develop a model for ribosome-protected fragment (RPF) spectra that accounts for the local codon context-dependent variation of peptide elongation times and fragment processing biases. We use a Marquardt algorithm for non-linear regression with maximum likelihood (ML) like statistics to fit the RPF sequencing data. Taking advantage of the factorial character of the present model, we reconstruct the parameters adhering to an ideal, unbiased RPF spectrum. Overall design: Ribosome profiling of E. coli MG1655 cultured in rich medium"

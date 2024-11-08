@@ -1,0 +1,2 @@
+abstract
+"Deep sequencing methods have matured to comprehensively detect the full set of transcribed loci, but there is a gap to determine the function of the resulting highly complex transcriptomes. To this end, we have developed a new approach named ORFquant to annotate and quantify translation at the single open reading frame (ORF) level using Ribo-seq data. Overall design: After RNase I footprinting in CHX-containing lysis buffer, RNA fragments around 29nt were isolated and subjected to rRNA depletion using RiboZero."

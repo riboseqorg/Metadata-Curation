@@ -1,0 +1,2 @@
+abstract
+"Ribolog was used to compare translational efficiency across conditions (https://github.com/goodarzilab/Ribolog). Briefly, Ribolog applies a logistic regression to model individual Ribo-seq and RNA-seq reads in order to provide estimates of logTER (i.e., logFC in TE) and its associated p-value across the coding transcriptome. Overall design: Ribosome profiling was performed as previously described (PMID: 28579404) on HL-60 cells treated with DMSO or decitabine."

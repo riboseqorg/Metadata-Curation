@@ -1,0 +1,2 @@
+abstract
+"Ribosome profiling (RiboSeq) (maps positions of translating ribosomes on the transcriptome) and RNASeq (quantifies the transcriptome) analysis of murine L929 cells infected with encephalomyocarditis virus vMC0. Samples comprise 2, 4, 6 and 8 h post infection RiboSeq timecourses for WT virus and a shift mutant [SS] (8 samples), and RiboSeq and RNASeq at 8 h post infection for WT virus and 5 mutant viruses (shift site [SS], stem-loop [WT-SL], shift site and stem-loop [SS-SL], StopGo [LV], and StopGo, shift site and stem-loop [LV-SS-SL]) (12 samples)."

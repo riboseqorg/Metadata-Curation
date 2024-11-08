@@ -1,0 +1,2 @@
+abstract
+"Ribosome profiling data from U2OS, HeLa and Kc167 cells under various lysis conditions and using immunoprecipitation to purifiy ribosome associated footprints. Two human cell lines (U2OS and HeLa cells) and a Drosophila melanogaster cell line (Kc167) are used to see if the 3'UTR reads are identified in each cell type. Immunoprecipitation of ribosomes is used to analyse if 3'UTR reads derive from ribosomes (are found with ribosome immunoprecipitates) and to which extent the lysis conditions contribute to the identification of the 3'UTR reads."

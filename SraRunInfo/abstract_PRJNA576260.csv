@@ -1,0 +1,2 @@
+abstract
+Purpose: examination of gene expression and translation changes in immortalized human epithelial cells (hTERT-RPE-1) induced by PDCD4 siRNA-knockdown. Overall design: Knockdown induction: hTERT-RPE-1 cells were transfected either with PDCD4-siRNA or control-siRNA (100 nM) and incubated for 24 h. Induced effects were analyzed by ribosome profiling and RNA-seq in triplicate (IlluminaSequencing).

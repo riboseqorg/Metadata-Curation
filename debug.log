@@ -1,0 +1,32 @@
+running
+  '/usr/local/lib/R/bin/R --no-echo --no-restore --file=/usr/local/bin/metadata_main_script.R --args --output /data/output --temp /data/temp_files --sra /data/SraRunInfo --scripts /data'
+
+[1] "finding"
+[1] "running"
+                id
+            <char>
+   1: PRJNA1177760
+   2: PRJNA1177427
+   3: PRJNA1176138
+   4: PRJNA1170270
+   5: PRJNA1166334
+  ---             
+1784:  PRJNA108931
+1785:  PRJNA108921
+1786:  PRJNA107683
+1787:  PRJNA106523
+1788:  PRJNA103647
+                                                                                                                                    title
+                                                                                                                                   <char>
+   1:    Citrus Phloem Transcriptional Profiling Using a Citrus Tristeza Virus Vectored Translating Ribosome Affinity Purification System
+   2: Discovery and analysis of NFE2L1's non-transcriptional activity by transcriptome sequencing in hepatocellular carcinoma HepG2 cells
+   3:                                     Cytosolic Ribosomal Protein Haploinsufficiency affects Mitochondrial Morphology and Respiration
+   4:                                                                                                     Ribo-seq of mouse spermatocytes
+   5:    Distinct modes of non-canonical initiation regulate selective host versus viral mRNA translation during poxvirus-induced shutoff
+  ---                                                                                                                                    
+1784:                           Transcription Factor Substitution during the Evolution of Fungal Ribosome Regulation_expression profiling
+1785:                                     Transcription Factor Substitution during the Evolution of Fungal Ribosome Regulation_ChIP-CHIP 
+1786:                                                Transcription Factor Substitution during the Evolution of Fungal Ribosome Regulation
+1787:                                         Effects of Mediator subunit gene-deletions under conditions that repress ribosome synthesis
+1788:                                                                            Gene expression profiling of dMyc null Drosophila larvae
+Execution halted
