@@ -1,0 +1,496 @@
+Process started at: 2024-11-08 12:40:30.155665
+Output directory: /data/output
+Temporary directory: /data/temp_files
+SRA directory: /data/SraRunInfo
+Finding and fetching Ribo-seq studies...
+Running script: metadata_find&fetch.R
+Loading required package: IRanges
+Loading required package: BiocGenerics
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:data.table’:
+
+    first, second
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:data.table’:
+
+    shift
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: GenomicAlignments
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:data.table’:
+
+    last
+
+
+Attaching package: ‘ORFik’
+
+The following object is masked from ‘package:graphics’:
+
+    symbols
+
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:GenomicAlignments’:
+
+    first, last
+
+The following objects are masked from ‘package:Biostrings’:
+
+    collapse, intersect, setdiff, setequal, union
+
+The following object is masked from ‘package:XVector’:
+
+    slice
+
+The following object is masked from ‘package:Biobase’:
+
+    combine
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following objects are masked from ‘package:GenomicRanges’:
+
+    intersect, setdiff, union
+
+The following object is masked from ‘package:GenomeInfoDb’:
+
+    intersect
+
+The following objects are masked from ‘package:IRanges’:
+
+    collapse, desc, intersect, setdiff, slice, union
+
+The following objects are masked from ‘package:S4Vectors’:
+
+    first, intersect, rename, setdiff, setequal, union
+
+The following objects are masked from ‘package:BiocGenerics’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:data.table’:
+
+    between, first, last
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+- Retrieving IDs
+done
+- Retrieving Accessions from IDs
+done
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=25364376,25364377,25364378,25364379,25364380,25364381,25364382,25364383,25364384,25364385,25364386,25364387,25364388,25364389,25364390,25364391,25364392,25364393,25364394,25364395,25364396,25364397,25364398,25364399,25364400,25364401,25364402,25364403,25364404,25364405,25364406,25364407,25364408,25364409,25364410,25364411,25364412,25364413,25364414,25364415,25364416,25364417,25364418,25364419,25364420,25364421,25364422,25364423,25364424,25364425,25364426,25364427,25364428,25364429,25364430,25364431,25364432,25364433,25364434,25364435,25364436,25364437,25364438,25364439,25364440,25364441,25364442,25364443,25364444,25364445,25364446,25364447,25364448,25364449,25364450,25364451,25364452,25364453,25364454,25364455,25364456,25364457,25364458,25364459,25364460,25364461,25364462,25364463,25364464,25364465,25364466,25364467,25364468,25364469,25364470,25364471,25364472,25364473,25364474,25364475,25364476,25364477,25364478,25364479,25364480,25364481,25364482,25364483,25364484,25364485,25364486,25364487,25364488,25364489,25364490,25364491,25364492,25364493,25364494,25364495,25364496,25364497,25364498,25364499,25364500,25364501,25364502,25364503,25364504,25364505,25364506,25364507,25364508,25364509,25364510,25364511,25364512,25364513,25364514,25364515,25364516,25364517,25364518,25364519,25364520,25364521,25364522,25364523,25364524,25364525,25364526,25364527,25364528,25364529,25364530,25364531,25364532,25364533,25364534,25364535,25364536,25364537,25364538,25364539,25364540,25364541,25364542,25364543,25364544,25364545,25364546,25364547,25364548,25364549,25364550,25364551,25364552,25364553,25364554,25364555,25364556,25364557,25364558,25364559,25364560,25364561,25364562,25364563,25364564,25364565,25364566,25364567,25364568,25364569,25364570,25364571,25364572,25364573,25364574,25364575,25364576,25364577,25364578,25364579,25364580,25364581,25364582,25364583,25364584,25364585,25364586,25364587,25364588,25364589,25364590,25364591,25364592,25364593,25364594,25364595,25364596,25364597,25364598,25364599,25364600,25364601,25364602,25364603,25364604,25364605,25364606,25364607,25364608,25364609,25364610,25364611,25364612,25364613,25364614,25364615,25364616,25364617,25364618,25364619,25364620,25364621,25364622,25364623,25364624,25364625,25364626,25364627,25364628,25364629,25364630,25364631,25364632,25364633,25364634,25364635,25364636,25364637,25364638,25364639,25364640,25364641,25364642,25364643,25364644,25364645,25364646,25364647,25364648,25364649,25364650,25364651,25364652,25364653,25364654,25364655,25364656,25364657,25364658,25364659,25364660,25364661,25364662,25364663,25364664,25364665,25364666,25364667,25364668,25364669,25364670,25364671,25364672,25364673,25364674,25364675,25364676,25364677,25364678,25364679,25364680,25364681,25364682,25364683,25364684,25364685,25364686,25364687,25364688,25364689,25364690,25364691,25364692,25364693,25364694,25364695,25364696,25364697,25364698,25364699,25364700,25364701,25364702,25364703,25364704,25364705,25364706,25364707,25364708,25364709,25364710,25364711,25364712,25364713,25364714,25364715,25364716,25364717,25364718,25364719,25364720,25364721,25364722,25364723,25364724,25364725,25364726,25364727,25364728,25364729,25364730,25364731,25364732,25364733,25364734,25364735,25364736,25364737,25364738,25364739,25364740,25364741,25364742,25364743,25364744,25364745,25364746,25364747,25364748,25364749,25364750,25364751,25364752,25364753,25364754,25364755,25364756,25364757,25364758,25364759,25364760,25364761,25364762,25364763,25364764,25364765,25364766,25364767,25364768,25364769,25364770,25364771,25364772,25364773,25364774,25364775,25364776,25364777,25364778,25364779,25364780,25364781,25364782,25364783,25364784,25364785,25364786,25364787,25364788,25364789,25364790,25364791,25364792,25364793,25364794,25364795,25364796,25364797,25364798,25364799,25364800,25364801,25364802,25364803,25364804,25364805,25364806,25364807,25364808,25364809,25364810,25364811,25364812,25364813,25364814,25364815,25364816,25364817,25364818,25364819,25364820,25364821,25364822,25364823,25364824,25364825,25364826,25364827,25364828,25364829,25364830,25364831,25364832,25364833,25364834,25364835,25364836,25364837,25364838,25364839,25364840,25364841,25364842,25364843,25364844,25364845,25364846,25364847,25364848,25364849,25364850,25364851,25364852,25364853,25364854,25364855,25364856,25364857,25364858,25364859,25364860,25364861,25364862,25364863,25364864,25364865,25364866,25364867,25364868,25364869,25364870,25364871,25364872,25364873,25364874,25364875,25364876,25364877,25364878,25364879,25364880,25364881,25364882,25364883,25364884,25364885,25364886,25364887,25364888,25364889,25364890,25364891,25364892,25364893,25364894,25364895,25364896,25364897,25364898,25364899,25364900,25364901,25364902,25364903,25364904,25364905,25364906,25364907,25364908,25364909,25364910,25364911,25364912,25364913,25364914,25364915,25364916,25364917,25364918,25364919,25364920,25364921,25364922,25364923,25364924,25364925,25364926,25364927,25364928,25364929,25364930,25364931,25364932,25364933,25364934,25364935,25364936,25364937,25364938,25364939,25364940,25364941,25364942,25364943,25364944,25364945,25364946,25364947,25364948,25364949,25364950,25364951,25364952,25364953,25364954,25364955,25364956,25364957,25364958,25364959,25364960,25364961,25364962,25364963,25364964,25364965,25364966,25364967,25364968,25364969,25364970,25364971,25364972,25364973,25364974,25364975,25364976,25364977,25364978,25364979,25364980,25364981,25364982,25364983,25364984,25364985,25364986,25364987,25364988,25364989,25364990,25364991,25364992,25364993,25364994,25364995,25364996,25364997,25364998,25364999,25365000,25365001,25365002,25365003,25365004,25365005,25365006,25365007,25365008,25365009,25365010,25365011,25365012,25365013,25365014,25365015,25365016,25365017,25365018,25365019,25365020,25365021,25365022,25365023,25365024,25365025,25365026,25365027,25365028,25365029,25365030,25365031,25365032,25365033,25365034,25365035,25365036,25365037,25365038,25365039,25365040,25365041,25365042,25365043,25365044,25365045,25365046,25365047,25365048,25365049,25365050,25365051,25365052,25365053,25365054,25365055,25365056,25365057,25365058,25365059,25365060,25365061,25365062,25365063,25365064,25365065,25365066,25365067,25365068,25365069,25365070,25365071,25365072,25365073,25365074,25365075,25365076,25365077,25365078,25365079,25365080,25365081,25365082,25365083,25365084,25365085,25365086,25365087,25365088,25365089,25365090,25365091,25365092,25365093,25365094,25365095,25365096,25365097,25365098,25365099,25365100,25365101,25365102,25365103,25365104,25365105,25365106,25365107,25365108,25365109,25365110,25365111,25365112,25365113,25365114,25365115,25365116,25365117,25365118,25365119,25365120,25365121,25365122,25365123,25365124,25365125,25365126,25365127,25365128,25365129,25365130,25365131,25365132,25365133,25365134,25365135,25365136,25365137,25365138,25365139,25365140,25365141,25365142,25365143&rettype=fasta&retmode=xml
+Error in open.connection(x, "rb") : cannot open the connection
+In addition: Warning message:
+Failed to open 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=25364376,25364377,25364378,25364379,25364380,25364381,25364382,25364383,25364384,25364385,25364386,25364387,25364388,25364389,25364390,25364391,25364392,25364393,25364394,25364395,25364396,25364397,25364398,25364399,25364400,25364401,25364402,25364403,25364404,25364405,25364406,25364407,25364408,25364409,25364410,25364411,25364412,25364413,25364414,25364415,25364416,25364417,25364418,25364419,25364420,25364421,25364422,25364423,25364424,25364425,25364426,25364427,25364428,25364429,25364430,25364431,25364432,25364433,25364434,25364435,25364436,25364437,25364438,25364439,25364440,25364441,25364442,25364443,25364444,25364445,25364446,25364447,25364448,25364449,25364450,25364451,25364452,25364453,25364454,25364455,25364456,25364457,25364458,25364459,25364460,25364461,25364462,25364463,25364464,25364465,25364466,25364467,25364468,25364469,25364470,25364471,25364472,25364473,25364474,25364475,25364476,2536447 [... truncated] 
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=11217699,11217700,11217701,11217702,11217703,11217704,11217705,11217706,11217707,11217708,11217709,11217710,11217711,11217712,11217713,11217714,11217715,11217716,11217717,11217718,11217719,11217720,11217721,11217722,11217723,11217724,11217725,11217726,11217727,11217728,11217729,11217730,11217731,11217732,11217733,11217734,11217735,11217736,11217737,11217738,11217739,11217740,11217741,11217742,11217743,11217744,11217745,11217746,11217747,11217748,11217749,11217750,11217751,11217752,11217753,11217754,11217755,11217756,11217757,11217758,11217759,11217760,11217761,11217762,11217763,11217764,11217765,11217766,11217767,11217768,11217769,11217770,11217771,11217772,11217773,11217774,11217775,11217776,11217777,11217778,11217779,11217780,11217781,11217782,11217783,11217784,11217785,11217786,11217787,11217788,11217789,11217790,11217791,11217792,11217793,11217794,11217795,11217796,11217797,11217798,11217799,11217800,11217801,11217802,11217803,11217804,11217805,11217806,11217807,11217808,11217809,11217810,11217811,11217812,11217813,11217814,11217815,11217816,11217817,11217818,11217819,11217820,11217821,11217822,11217823,11217824,11217825,11217826,11217827,11217828,11217829,11217830,11217831,11217832,11217833,11217834,11217835,11217836,11217837,11217838,11217839,11217840,11217841,11217842,11217843,11217844,11217845,11217846,11217847,11217848,11217849,11217850,11217851,11217852,11217853,11217854,11217855,11217856,11217857,11217858,11217859,11217860,11217861,11217862,11217863,11217864,11217865,11217866,11217867,11217868,11217869,11217870,11217871,11217872,11217873,11217874,11217875,11217876,11217877,11217878,11217879,11217880,11217881,11217882,11217883,11217884,11217885,11217886,11217887,11217888,11217889,11217890,11218678,11218679,11218680,11218681,11218682,11218683,11218684,11218685,11218686,11218687,11218688,11218689,11218690,11218691,11218692,11218693,11218694,11218695,11218696,11218697,11218698,11218699,11218700,11218701,11218702,11218703,11218704,11218705,11218706,11218707,11218708,11218709,11218710,11218711,11218712,11218713,11218714,11218715,11218716,11218717,11218718,11218719,11218720,11218721,11218722,11218723,11218724,11218725,11218726,11218727,11218728,11218729,11218730,11218731,11218732,11218733,11218734,11218735,11218736,11218737,11218738,11218739,11218740,11218741,11218742,11218743,11218744,11218745,11218746,11218747,11218748,11218749,11218750,11218751,11218752,11218753,11218754,11218755,11218756,11218757,11218758,11218759,11218760,11218761,11218762,11218763,11218764,11218765,11218766,11218767,11218768,11218769,11218770,11218771,11218772,11218773,11218774,11218775,11218776,11218777,11218778,11218779,11218780,11218781,11218782,11218783,11218784,11218785,11218786,11218787,11218788,11218789,11218790,11218791,11218792,11218793,11218794,11218795,11218796,11218797,11218798,11218799,11218800,11218801,11218802,11218803,11218804,11218805,11218806,11218807,11218808,11218809,11218810,11218811,11218812,11218813,11218814,11218815,11218816,11218817,11218818,11218819,11218820,11218821,11218822,11218823,11218824,11218825,11218826,11218827,11218828,11218829,11218830,11218831,11218832,11218833,11218834,11218835,11218836,11218837,11218838,11218839,11218840,11218841,11218842,11218843,11218844,11218845,11218846,11218847,11218848,11218849,11218850,11218851,11218852,11218853,11218854,11218855,11218856,11218857,11218858,11218859,11218860,11218861,11218862,11218863,11218864,11218865,11218866,11218867,11218868,11218869,11226083,11226084,11226085,11226086,11226087,11226088,11226089,11226090,11226091,11226092,11226093,11226094,11226095,11226096,11226097,11226098,11226099,11226100,11226101,11226102,11226103,11226104,11226105,11226106,11226107,11226108,11226109,11226110,11226111,11226112,11226113,11226114,11226115,11226116,11226117,11226118,11226119,11226120,11226121,11226122,11226123,11226124,11226125,11226126,11226127,11226128,11226129,11226130,11226131,11226132,11226133,11226134,11226135,11226136,11226137,11226138,11226139,11226140,11226141,11226142,11226143,11226144,11226145,11226146,11226147,11226148,11226149,11226150,11226151,11226152,11226153,11226154,11226155,11226156,11226157,11226158,11226159,11226160,11226161,11226162,11226163,11226164,11226165,11226166,11226167,11226168,11226169,11226170,11226171,11226172,11226173,11226174,11226175,11226176,11226177,11226178,11226179,11226180,11226181,11226182,11226183,11226184,11226185,11226186,11226187,11226188,11226189,11226190,11226191,11226192,11226193,11226194,11226195,11226196,11226197,11226198,11226199,11226200,11226201,11226202,11226203,11226204,11226205,11226206,11226207,11226208,11226209,11226210,11226211,11226212,11226213,11226214,11226215,11226216,11226217,11226218,11226219,11226220,11226221,11226222,11226223,11226224,11226225,11226226,11226227,11226228,11226229,11226230,11226231,11226232,11226233,11226234,11226235,11226236,11226237,11226238,11226239,11226240,11226241,11226242,11226243,11226244,11226245,11226246,11226247,11226248,11226249,11226250,11226251,11226252,11226253,11226254,11226255,11226256,11226257,11226258,11226259,11226260,11226261,11226262,11226263,11226264,11226265,11226266,11226267,11226268,11226269,11226270,11226271,11226272,11226273,11226274,11226317,11226318,11226319,11226320,11226321,11226322,11226323,11226324,11226325,11226326,11226327,11226328,11226329,11226330,11226331,11226332,11226333,11226334,11226335,11226336,11226337,11226338,11226339,11226340,11226341,11226342,11226343,11226344,11226345,11226346,11226347,11226348,11226349,11226350,11226351,11226352,11226353,11226354,11226355,11226356,11226357,11226358,11226359,11226360,11226361,11226362,11226363,11226364,11226365,11226366,11226367,11226368,11226369,11226370,11226371,11226372,11226373,11226374,11226375,11226376,11226377,11226378,11226379,11226380,11226381,11226382,11226383,11226384,11226385,11226386,11226387,11226388,11226389,11226390,11226391,11226392,11226393,11226394,11226395,11226396,11226397,11226398,11226399,11226400,11226401,11226402,11226403,11226404,11226405,11226406,11226407,11226408,11226409,11226410,11226411,11226412,11226413,11226414,11226415,11226416,11226417,11226418,11226419,11226420,11226421,11226422,11226423,11226424,11226425,11226426,11226427,11226428,11226429,11226430,11226431,11226432,11226433,11226434,11226435,11226436,11226437,11226438,11226439,11226440,11226441,11226442,11226443,11226444,11226445,11226446,11226447,11226448,11226449,11226450,11226451,11226452,11226453,11226454,11226455,11226456,11226457,11226458,11226459,11226460,11226461,11226462,11226463,11226464,11226465,11226466,11226467,11226468,11226469,11226470,11226471,11226472,11226473,11226474,11226475,11226476,11226477,11226478,11226479,11226480,11226481,11226482,11226483,11226484,11226485,11226486,11226487,11226488,11226489,11226490,11226491,11226492,11226493,11226494,11226495,11226496,11226497,11226498,11226499,11226500,11226501,11226502,11226503,11226504,11226505,11226506,11226507,11226508,11253498,11253499,11253500,11253501,11253502,11253503,11253504,11253505,11253506,11253507,11253508,11253509,11253510,11253511,11253512,11253513,11253514,11253515,11253516,11253517,11253518,11253519,11253520,11253521,11253522,11253523,11253524,11253525,11253526,11253527,11253528,11253529,11253530,11253531,11253532,11253533,11253534,11253535,11253536,11253537,11253538,11253539,11253540,11253541,11253542,11253543,11253544,11253545,11253546,11253547,11253548,11253549,11253550,11253551,11253552,11253553,11253554,11253555,11253556,11253557,11253558,11253559,11253560,11253561,11253562,11253563,11253564,11253565,11253566,11253567,11253568,11253569,11253570,11253571,11253572,11253573,11253574,11253575,11253576,11253577,11253578,11253579,11253580,11253581,11253582,11253583,11253584,11253585,11253586,11253587,11253588,11253589,11253590,11253591,11253592,11253593,11253594,11253595,11253596,11253597,11253598,11253599,11253600,11253601,11253602,11253603,11253604,11253605,11253606,11253607,11253608,11253609,11253610,11253611,11253612,11253613,11253614,11253615,11253616,11253617,11253618,11253619,11253620,11253621,11253622,11253623,11253624,11253625,11253626,11253627,11253628,11253629,11253630,11253631,11253632,11253633,11253634,11253635,11253636,11253637,11253638,11253639,11253640,11253641,11253642,11253643,11253644,11253645,11253646,11253647,11253648,11253649,11253650,11253651,11253652,11253653,11253654,11253655,11253656,11253657,11253658,11253659,11253660,11253661,11253662,11253663,11253664,11253665,11253666,11253667,11253668,11253669,11253670,11253671,11253672,11253673,11253674,11253675,11253676,11253677,11253678,11253679,11253680,11253681,11253682,11253683,11253684,11253685,11253686,11253687,11253688,11253689,11254411,11254412,11254413,11254414,11254415,11254416,11254417,11254418,11254419,11254420,11254421,11254422,11254423,11254424,11254425,11254426,11254427,11254428,11254429,11254430,11254431,11254432,11254433,11254434,11254435,11254436,11254437,11254438,11254439,11254440,11254441,11254442,11254443,11254444,11254445,11254446,11254447,11254448,11254449,11254450,11254451,11254452,11254453,11254454,11254455,11254456,11254457,11254458,11254459,11254460,11254461,11254462,11254463,11254464,11254465,11254466,11254467,11254468,11254469,11254470,11254471,11254472,11254473,11254474,11254475,11254476,11254477,11254478,11254479,11254480,11254481,11254482,11254483,11254484,11254485,11254486,11254487,11254488,11254489,11254490,11254491,11254492,11254493,11254494,11254495,11254496,11254497,11254498,11254499,11254500,11254501,11254502,11254503,11254504,11254505,11254506,11254507,11254508,11254509,11254510,11254511,11254512,11254513,11254514,11254515,11254516,11254517,11254518,11254519,11254520,11254521,11254522,11254523,11254524,11254525,11254526,11254527,11254528,11254529,11254530,11254531,11254532,11254533,11254534,11254535,11254536,11254537,11254538,11254539,11254540,11254541,11254542,11254543,11254544,11254545,11254546,11254547,11254548,11254549,11254550,11254551,11254552,11254553,11254554,11254555,11254556,11254557,11254558,11254559,11254560,11254561,11254562,11254563,11254564,11254565,11254566,11254567,11254568,11254569,11254570,11254571,11254572,11254573,11254574,11254575,11254576,11254577,11254578,11254579,11254580,11254581,11254582,11254583,11254584,11254585,11254586,11254587,11254588,11254589,11254590,11254591,11254592,11254593,11254594,11254595,11254596,11254597,11254598,11254599,11254600,11254601,11254602&rettype=fasta&retmode=xml
+Error in open.connection(x, "rb") : cannot open the connection
+In addition: Warning message:
+Failed to open 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=11217699,11217700,11217701,11217702,11217703,11217704,11217705,11217706,11217707,11217708,11217709,11217710,11217711,11217712,11217713,11217714,11217715,11217716,11217717,11217718,11217719,11217720,11217721,11217722,11217723,11217724,11217725,11217726,11217727,11217728,11217729,11217730,11217731,11217732,11217733,11217734,11217735,11217736,11217737,11217738,11217739,11217740,11217741,11217742,11217743,11217744,11217745,11217746,11217747,11217748,11217749,11217750,11217751,11217752,11217753,11217754,11217755,11217756,11217757,11217758,11217759,11217760,11217761,11217762,11217763,11217764,11217765,11217766,11217767,11217768,11217769,11217770,11217771,11217772,11217773,11217774,11217775,11217776,11217777,11217778,11217779,11217780,11217781,11217782,11217783,11217784,11217785,11217786,11217787,11217788,11217789,11217790,11217791,11217792,11217793,11217794,11217795,11217796,11217797,11217798,11217799,1121780 [... truncated] 
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Downloading metadata from:
+https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id=&rettype=fasta&retmode=xml
+Error in sample_info_single(EXP_SAMPLE) : object 'RUN' not found
+Running script: finding_riboseq.R
+Running script: metadata_cleanup_columns.R
+Running script: metadata_standardize_column_values.R
+Private (not open for public) samples detected, they were removed!
+New names:
+• `CELL_LINE` -> `CELL_LINE...1`
+• `TISSUE` -> `TISSUE...2`
+• `sample_title` -> `sample_title...3`
+• `Info` -> `Info...4`
+• `sample_source` -> `sample_source...5`
+• `LibraryName` -> `LibraryName...6`
+• `CELL_LINE` -> `CELL_LINE...7`
+• `TISSUE` -> `TISSUE...8`
+• `sample_title` -> `sample_title...9`
+• `Info` -> `Info...10`
+• `sample_source` -> `sample_source...11`
+• `LibraryName` -> `LibraryName...12`
+Running script: metadata_standardized_columns_post_cleanup.R
+Process completed successfully at: 2024-11-08 12:48:34.549987

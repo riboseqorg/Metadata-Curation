@@ -1,105 +1,167 @@
-library(ORFik); library(data.table); library(readxl); library(BiocParallel)
-library(googledrive); library(massiveNGSpipe)
-# devtools::load_all()
-findFromPath <- ORFik:::findFromPath
-input_file_path <- "temp_files/standardized_columns_with_original.csv"
+# Load required libraries
+suppressPackageStartupMessages({
+  library(ORFik)
+  library(data.table)
+  library(readxl)
+  library(BiocParallel)
+  library(googledrive)
+  library(massiveNGSpipe)
+})
 
-today_date <- format(Sys.Date(), "%Y-%m-%d")
-final_file_path <- paste0("temp_files/standardized_columns_final_", today_date, ".csv")
+# Constants
+MISSING_VALUES <- c("none", "None", "Missing", "missing", "NA", "n/a", "N/A", 
+                   "not applicable", "No", "not determined")
+INFO_COLS <- c("sample_title", "Info", "sample_source", "LibraryName")
+RESOURCE_PATH <- "/data/resources"
+TEMP_FILES_PATH <- "/data/temp_files"
 
-
-x_st <- fread(input_file_path)
-
-core_cols <-  googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
-                                        sheet = 7, col_types = "cL")
-setDT(core_cols)
-core_cols[,2] <- lapply(seq(nrow(core_cols)), function(y) strsplit(core_cols[y,2][[1]][[1]], split = ", ")[[1]])
-stopifnot(all(core_cols[,1][[1]] %in% colnames(x_st)))
-stopifnot(all(unlist(core_cols[,2], recursive = T) %in% colnames(x_st)))
-core_cols <- core_cols[!(Column %in% c("STAGE", "GENE")),]
-info_cols <- c("sample_title", "Info", "sample_source", "LibraryName")
-
-# Analyse miss
-for (i in seq_along(core_cols$Column)) {
-  col <- core_cols$Column[i]
-  print(col)
-  subset <- x_st[, paste0(col, "_st"), with = F][[1]] == "" & x_st[, col, with = F][[1]] != ""
-  missing <- x_st[subset, c(info_cols, core_cols[Column == col,]$Mapping[[1]], paste0(col, "_st")), with = F][, col, with = F][[1]]
-  print(unique(missing))
+#' Generate file path with current date
+#' @param base_path Base path for the file
+#' @param prefix Prefix for the filename
+#' @param suffix Suffix for the filename
+#' @return Complete file path with date
+generate_dated_filepath <- function(base_path, prefix, suffix = ".csv") {
+  date_str <- format(Sys.Date(), "%Y-%m-%d")
+  file.path(base_path, paste0(prefix, "_", date_str, suffix))
 }
 
-content <-  googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
-                                      sheet = 9, col_types = "cccc")
-# Library type
-# Hard coded
-content_libtype <- content[content$Column == "LIBRARYTYPE",]
-for (i in seq(nrow(content_libtype))) {
-  subset <- x_st$LIBRARYTYPE_st == "" & x_st$LIBRARYTYPE == content_libtype$`All Names`[i]
-  x_st[subset, LIBRARYTYPE_st := content_libtype$`Main Name`[i]]
+#' Validate core columns against dataset
+#' @param core_cols Core columns data.table
+#' @param dataset Main dataset
+#' @return Validated core_cols
+validate_core_columns <- function(core_cols, dataset) {
+  # Validate column presence
+  stopifnot(
+    "Core columns missing from dataset" = 
+      all(core_cols[,1][[1]] %in% colnames(dataset)),
+    "Mapping columns missing from dataset" = 
+      all(unlist(core_cols[,2], recursive = TRUE) %in% colnames(dataset))
+  )
+  
+  # Remove specific columns
+  core_cols[!(Column %in% c("STAGE", "GENE")),]
 }
-# x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("ITP", sample_title),]
-# Inhibitor
-content_inhib <- content[content$Column == "INHIBITOR",]
-# for (i in seq(nrow(content_libtype))) {
-#   subset <- x_st$INHIBITOR_st == "" & x_st$INHIBITOR == content_libtype$`All Names`[i]
-#   x_st[subset, INHIBITOR_st := content_libtype$`Main Name`[i]]
-# }
 
+#' Process library types
+#' @param data Dataset to process
+#' @param content_libtype Library type content mapping
+#' @return Updated dataset with processed library types
+process_library_types <- function(data, content_libtype) {
+  for (i in seq(nrow(content_libtype))) {
+    subset <- data$LIBRARYTYPE_st == "" & 
+              data$LIBRARYTYPE == content_libtype$`All Names`[i]
+    data[subset, LIBRARYTYPE_st := content_libtype$`Main Name`[i]]
+  }
+  
+  # Process specific patterns
+  patterns <- list(
+    list(pattern = "40s|40S", col = "Info|sample_title", value = "40S"),
+    list(pattern = "[Ribo]", col = "sample_title", value = "RFP", fixed = TRUE),
+    list(pattern = "Ribosome Profiling", col = "INHIBITOR", value = "RFP"),
+    list(pattern = "input|Total RNA", col = "FRACTION|sample_title", value = "RNA"),
+    list(pattern = "ITP|ribo_mesc", col = "sample_title", value = "RFP"),
+    list(pattern = "RMS", col = "sample_title", value = "RMS"),
+    list(pattern = "Snap25_ip", col = "sample_title", value = "RIP"),
+    list(pattern = "RP_mRNA", col = "sample_title", value = "RNA"),
+    list(pattern = "RF_M", col = "sample_title", value = "RFP")
+  )
+  
+  for (p in patterns) {
+    cols <- strsplit(p$col, "\\|")[[1]]
+    for (col in cols) {
+      data[LIBRARYTYPE_st == "" & 
+           grepl(p$pattern, get(col), fixed = p$fixed), 
+           LIBRARYTYPE_st := p$value]
+    }
+  }
+  
+  # Process bioproject specific cases
+  bioproject_mapping <- list(
+    "PRJNA472972" = "RFP",
+    "PRJNA579539" = "LSU"
+  )
+  
+  for (proj in names(bioproject_mapping)) {
+    data[BioProject == proj & LIBRARYTYPE_st == "", 
+         LIBRARYTYPE_st := bioproject_mapping[[proj]]]
+  }
+  
+  data
+}
 
+#' Process sex information
+#' @param data Dataset to process
+#' @return Updated dataset with processed sex information
+process_sex_information <- function(data) {
+  # Clean missing values
+  data[Sex %in% MISSING_VALUES, Sex := ""]
+  
+  # Standardize existing values
+  data[Sex == "Male", Sex := "male"]
+  data[Sex %in% c("pooled male and female", "mixed"), 
+       Sex := "Mix of male/female"]
+  
+  # Set sex based on cell lines
+  female_cell_lines <- c("HeLa")
+  male_cell_lines <- c("Hek293")
+  
+  data[CELL_LINE_st %in% female_cell_lines, Sex := "female"]
+  data[CELL_LINE_st %in% male_cell_lines, Sex := "male"]
+  
+  data
+}
 
+#' Main processing function
+#' @param input_path Path to input file
+#' @return Processed dataset
+main <- function() {
+  # Read input data
+  input_path <- file.path(TEMP_FILES_PATH, "standardized_columns_with_original.csv")
+  output_path <- generate_dated_filepath(TEMP_FILES_PATH, "standardized_columns_final")
+  
+  # Read main dataset
+  x_st <- fread(input_path)
+  # Read and process core columns
+  core_cols <- fread(file.path(RESOURCE_PATH, "Column_value_mapping.csv"),
+                    colClasses = c("character", "character"))
 
-# x_st[ , new := do.call(paste, c(.SD, sep = "_")), .SDcols=-which(colnames(x_st) %in% c("REPLICATE", "REPLICATE_st"))]
-ids <- fread("temp_files/SRA_ids.csv")
-x_final <- copy(x_st)
-x_final <- cbind(x_final, ids)
-# Grep coded
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("40s", Info), LIBRARYTYPE_st := "40S"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("40S", sample_title), LIBRARYTYPE_st := "40S"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("[Ribo]", sample_title, fixed = T), LIBRARYTYPE_st := "RFP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("Ribosome Profiling", INHIBITOR), LIBRARYTYPE_st := "RFP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("input|Total RNA", FRACTION), LIBRARYTYPE_st := "RNA"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("input|Total RNA", sample_title),]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("ITP", sample_title), LIBRARYTYPE_st := "RFP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("ribo_mesc", sample_title), LIBRARYTYPE_st := "RFP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("RMS", sample_title), LIBRARYTYPE_st := "RMS"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("Snap25_ip", sample_title), LIBRARYTYPE_st := "RIP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("RP_mRNA", sample_title), LIBRARYTYPE_st := "RNA"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("RF_M", sample_title), LIBRARYTYPE_st := "RFP"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("_RF_", sample_title) & seq(nrow(x_final)) %in% grep("_input_", sample_title), LIBRARYTYPE_st := "RNA"]
+  setDT(core_cols)
+  core_cols[, 2] <- lapply(seq(nrow(core_cols)), function(y) 
+    strsplit(core_cols[y,2][[1]][[1]], split = ", ")[[1]])
+  
+  core_cols <- validate_core_columns(core_cols, x_st)
+  
+  # Read content mapping
+  content <- fread(file.path(RESOURCE_PATH, "Content.csv"),
+                  colClasses = rep("character", 4))
+  
+  # Process library types
+  content_libtype <- content[content$Column == "LIBRARYTYPE",]
+  x_final <- copy(x_st)
 
-# Bioproject specific
-x_final[BioProject == "PRJNA472972", LIBRARYTYPE_st := "RFP"]
-x_final[BioProject == "PRJNA579539" & LIBRARYTYPE_st == "", LIBRARYTYPE_st := "LSU"]
-x_final[LIBRARYTYPE_st == "" & BioProject == "PRJNA501872" & seq(nrow(x_final)) %in% grep("input", sample_title), LIBRARYTYPE_st := "RNA"]
-x_final[LIBRARYTYPE_st == "" & seq(nrow(x_final)) %in% grep("-input-", sample_title), LIBRARYTYPE_st := "RNA"]
+  # Add SRA IDs
+  ids <- fread(file.path(TEMP_FILES_PATH, "SRA_ids.csv"))
+  x_final <- cbind(x_final, ids)
+  
+  # Process data
+  x_final <- process_library_types(x_final, content_libtype)
+  x_final <- process_sex_information(x_final)
+  
+  # Generate unique names and check duplicates
+  x_final[, name := do.call(paste, c(.SD, sep = "_")), 
+          .SDcols = grep("_st", colnames(x_final))]
+  x_final[, not_unique := duplicated(name), 
+          by = .(BioProject, ScientificName)]
+  
+  # Save results
+  fwrite(x_final, output_path)
+  # Return statistics
+  list(
+    missing_library_types = nrow(x_final[LIBRARYTYPE_st == "",]),
+    total_rows = nrow(x_final),
+    duplicate_count = sum(x_final$not_unique)
+  )
+}
 
-# Inhibitor
-x_final[INHIBITOR_st == "" & seq(nrow(x_final)) %in% grep("Har|har|HRT", INHIBITOR, ) & seq(nrow(x_final)) %in% grep("cyclo|Cyclo|CHX|CYH", INHIBITOR), INHIBITOR_st := "chx_harr"]
-table(x_final$INHIBITOR_st)
-# Sex (TODO: Infer from cell lines)
-missing_empty <- c("none", "None", "Missing", "missing", "NA", "n/a", "N/A", "not applicable","No", "not determined")
-x_final[Sex %in% missing_empty, Sex := ""]
-x_final[Sex %in% "Male", Sex := "male"]
-x_final[Sex %in% c("pooled male and female", "mixed"), Sex := "Mix of male/female"]
-# Female cell lines
-x_final[CELL_LINE_st %in% c("HeLa"), Sex := "female"]
-# Male cell lines
-x_final[CELL_LINE_st %in% c("Hek293"), Sex := "male"]
-table(x_final$Sex)
-
-
-## Check and save
-x_final[ , name := do.call(paste, c(.SD, sep = "_")), .SDcols=grep("_st", colnames(x_final))]
-x_final[, not_unique := duplicated(name), by = .(BioProject, ScientificName)]
-table(x_final$not_unique)
-biogrouping <- paste("")
-# Save results
-fwrite(x_final, final_file_path)
-googledrive::drive_upload(final_file_path, as_id("https://drive.google.com/drive/folders/1QLq31NOM1NgC4otN5664_Sdg6QvUlOwg"), overwrite = TRUE)
-
-# Statistics and column usage of results
-# View(x_final[not_unique == F,])
-nrow(x_final[LIBRARYTYPE_st == "",]); View(x_final[LIBRARYTYPE_st == "",])
-dtt <- x_final[, grep("_st", colnames(x_final)), with = F]
-colnames(dtt) <- gsub("_st", "", colnames(dtt))
-column_usage_check(dtt, "Final standardization")
+# Execute main function if running as script
+main()

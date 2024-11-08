@@ -3,12 +3,21 @@ library(massiveNGSpipe)
 
 # devtools::load_all()
 findFromPath <- ORFik:::findFromPath
-content <-  googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
-                                      sheet = 1, col_types = "cccL")
+
+content <- fread("/data/resources/Content.csv")
+
 content <- as.data.table(content)
+print("content")
+# Identify columns that are completely empty (all values are NA)
+non_empty_cols <- colSums(!is.na(content)) > 0
+print("nonempt")
+# Subset 'content' to keep only non-empty columns
+content <- content[, non_empty_cols, with = FALSE]
+print("content")
 colnames(content) <- c("Category","Column", "mainName", "allNames")
 
-x <- fread("temp_files/filtered_riboseq_done_260623.csv")
+x <- fread("/data/temp_files/filtered_riboseq_done_260623.csv")
+print("read X")
 
 # Table info
 # Total rows
@@ -23,12 +32,12 @@ table(x$LibraryStrategy)
 x <- massiveNGSpipe:::pipeline_metadata_filter(x)
 
 # Remove SRA cols not needed now
-SRA_cols <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
-                                      sheet = 6)
+SRA_cols <- fread("/data/resources/SRA.csv")
+
 SRA_cols <- colnames(SRA_cols)
 SRA_cols <- SRA_cols[!(SRA_cols %in% c("sample_title", "Info", "sample_source", "LibraryName", "ScientificName"))]
 SRA_to_id <- x[, c("Run", "BioProject"), with = F]
-fwrite(SRA_to_id, file = "temp_files/SRA_ids.csv")
+fwrite(SRA_to_id, file = "/data/temp_files/SRA_ids.csv")
 # x <- x[,!(colnames(x) %in% SRA_cols), with = F]
 
 
@@ -38,7 +47,6 @@ standardize_col <- function(x, cols_to_check, check_table) {
   stopifnot(all(cols_to_check %in% colnames(x)))
 
   hits <- bplapply(cols_to_check, function(y) {
-    print(y)
     findFromPath(x[, y, with = F][[1]], check_table, "auto")
   })
   names(hits) <- cols_to_check
@@ -46,8 +54,8 @@ standardize_col <- function(x, cols_to_check, check_table) {
   return(hits)
 }
 
-core_cols <-  googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1TVjXdpyAMJBex-OWyfEdZf_nfF79bPd_T6TpXS1LnFM/edit#gid=515852084",
-                                      sheet = 7, col_types = "cL")
+core_cols <- fread("/data/resources/Column_value_mapping.csv", 
+                   colClasses = c("character", "character"))
 setDT(core_cols)
 core_cols[,2] <- lapply(seq(nrow(core_cols)), function(y) strsplit(core_cols[y,2][[1]][[1]], split = ", ")[[1]])
 stopifnot(all(core_cols[,1][[1]] %in% colnames(x)))
@@ -64,7 +72,6 @@ mapping_functions <- list(CELL_LINE = ORFik:::cellLineNames(),
                           LIBRARYTYPE = ORFik:::libNames())
 is_nested <- !unlist(lapply(mapping_functions, is.data.table))
 l <- lapply(seq(nrow(core_cols)), function(y) {
-  print(core_cols[y,]$Column)
   if (is_nested[y]) {
     maps <- mapping_functions[[y]]
   } else maps <- mapping_functions[y]
@@ -92,7 +99,7 @@ lapply(dt, function(x) table(x))
 dt_st <- copy(dt)
 colnames(dt_st) <- paste0(colnames(dt_st), "_st")
 x_st <- cbind(x, dt_st)
-fwrite(x_st, "temp_files/standardized_columns_with_original.csv")
+fwrite(x_st, "/data/temp_files/standardized_columns_with_original.csv")
 
 #
 # # Then check strategy
