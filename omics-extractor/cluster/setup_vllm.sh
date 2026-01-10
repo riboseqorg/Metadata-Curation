@@ -23,13 +23,16 @@ else
 fi
 
 # Check Python version
-PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
 echo "Python version: $PYTHON_VERSION"
 
-if (( $(echo "$PYTHON_VERSION < 3.9" | bc -l) )); then
-    echo "❌ Python 3.9+ required"
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 9 ]); then
+    echo "❌ Python 3.9+ required (found $PYTHON_VERSION)"
     exit 1
 fi
+echo "✓ Python version OK"
 
 # Create virtual environment if it doesn't exist
 if [ ! -d ".venv-vllm" ]; then
