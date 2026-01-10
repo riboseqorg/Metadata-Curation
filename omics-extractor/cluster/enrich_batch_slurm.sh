@@ -16,12 +16,12 @@ set -e
 
 # Setup directories
 # CODE_DIR: Where the omics-extractor code is cloned
-# WORK_DIR: Where data, outputs, and config live
+# WORK_DIR: Where data, outputs, and config live (and venv)
 CODE_DIR=/hps/software/users/ensembl/genebuild/jackt/RiboSeq/Metadata-Curation/omics-extractor
 WORK_DIR=/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation
 
-# Activate environment from code directory
-source $CODE_DIR/.venv-vllm/bin/activate
+# Activate environment from work directory (where venv lives)
+source $WORK_DIR/.venv-vllm/bin/activate
 
 # Set config path (in work directory)
 export OMICS_EXTRACTOR_CONFIG=$WORK_DIR/config/model_paths.yaml

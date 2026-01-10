@@ -33,15 +33,23 @@ if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" 
     exit 1
 fi
 echo "✓ Python version OK"
+echo
+
+# Virtual environment location (in work directory for space)
+VENV_DIR="/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/.venv-vllm"
 
 # Create virtual environment if it doesn't exist
-if [ ! -d ".venv-vllm" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv .venv-vllm
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating virtual environment in work directory..."
+    echo "Location: $VENV_DIR"
+    python3 -m venv "$VENV_DIR"
+else
+    echo "✓ Virtual environment already exists: $VENV_DIR"
 fi
 
 # Activate virtual environment
-source .venv-vllm/bin/activate
+echo "Activating virtual environment..."
+source "$VENV_DIR/bin/activate"
 
 # Upgrade pip
 echo "Upgrading pip..."
@@ -65,10 +73,11 @@ echo "=================================="
 echo "✅ VLLM Setup Complete!"
 echo "=================================="
 echo
-echo "Virtual environment created: .venv-vllm"
+echo "Virtual environment location:"
+echo "  $VENV_DIR"
 echo
 echo "To activate in future sessions:"
-echo "  source .venv-vllm/bin/activate"
+echo "  source $VENV_DIR/bin/activate"
 echo
 echo "Next steps:"
 echo "1. Setup work directory:"
