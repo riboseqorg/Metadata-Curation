@@ -1,0 +1,33 @@
+[project]
+name = "omics-extractor"
+version = "0.1.0"
+description = "Generic metadata extraction framework for omics data"
+readme = "README.md"
+authors = [
+    { name = "Jack Tierney", email = "jackcurragh@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "biopython>=1.84",
+    "pydantic>=2.0",
+    "requests>=2.31",
+    "pronto>=2.5",
+    "GEOparse>=2.0",
+    "anthropic>=0.18.0",
+    "pyyaml>=6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.12",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+omics-extract = "omics_extractor.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"

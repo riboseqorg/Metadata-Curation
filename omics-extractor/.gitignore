@@ -78,6 +78,8 @@ benchmark_results/
 *_metadata_test.json
 *_traceable.json
 *_enriched.json
+*.soft.gz
+GSM*.txt
 
 # SLURM outputs
 slurm-*.out

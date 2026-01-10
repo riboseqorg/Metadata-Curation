@@ -1,0 +1,39 @@
+===============================================================================
+                    QUICK START: RUN THE BENCHMARK
+===============================================================================
+
+This benchmark compares baseline extraction vs Claude API enrichment.
+Model: claude-sonnet-4-5-20250929 (Claude 4.5 Sonnet - Sept 2025)
+
+NOTE: Local 70B models (Llama, Qwen, Mixtral) require A100 GPU.
+      See BENCHMARK_STATUS.md for Mac vs A100 options.
+
+Just run these 2 commands:
+
+1. Set your Anthropic API key:
+
+   export ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+   (Get key from: https://console.anthropic.com/settings/keys)
+
+2. Run the benchmark:
+
+   ./RUN_BENCHMARK.sh
+
+That's it! The benchmark will:
+✓ Extract metadata from real RiboSeq project (PRJNA1170270)
+✓ Show baseline results (structured + ontology)
+✓ Show Claude 3.5 Sonnet enrichment results
+✓ Compare them side-by-side
+
+Expected output: See README_BENCHMARK.md for example
+
+===============================================================================
+
+For detailed documentation:
+- BENCHMARK_STATUS.md       - What can run on Mac vs A100
+- README_BENCHMARK.md       - Benchmark guide
+- docs/LLM_INTEGRATION.md   - LLM system overview
+- docs/MODEL_COMPARISON.md  - Model evaluation guide
+
+===============================================================================

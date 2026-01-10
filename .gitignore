@@ -2,3 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# SRA data files (generated from batch extraction)
+SraRunInfo/
+
+# Temp files and outputs
+temp_files/*.csv
+!temp_files/.gitkeep
+output/*.txt
+!output/.gitkeep
+
+# Modified R temp files
+metadata_main_script.R
+metadata_standardized_columns_post_cleanup.R
