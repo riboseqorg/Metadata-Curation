@@ -84,7 +84,7 @@ echo "1. Setup work directory:"
 echo "   cd /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation"
 echo "   bash /hps/software/users/ensembl/genebuild/jackt/RiboSeq/Metadata-Curation/omics-extractor/cluster/setup_work_directory.sh"
 echo
-echo "2. Copy batch results from local machine"
+echo "2. Copy batch resgults from local machine"
 echo
 echo "3. Configure model path in work directory:"
 echo "   nano /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/config/model_paths.yaml"
