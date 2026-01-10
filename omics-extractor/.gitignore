@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+.venv-vllm/
+venv/
+ENV/
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Output files from batch extraction
+riboseq_batch_output/
+test_traceable_output/
+*.json
+!config/*.example.json
+!config/*.yaml
+
+# Model checkpoints and data (large files)
+models/
+data/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+
+# Benchmark results
+benchmark_results/
+*.txt
+!INSTRUCTIONS.txt
+!requirements.txt
+
+# Test data
+*_metadata.json
+*_metadata_test.json
+*_traceable.json
+*_enriched.json
+
+# SLURM outputs
+slurm-*.out
+enrich_*.out
+enrich_*.err
+
+# Config (keep examples)
+config/model_paths.yaml
+config/model_config.json
+!config/*.example.*

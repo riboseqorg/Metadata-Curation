@@ -1,0 +1,24 @@
+{
+  "description": "Gold-standard test dataset for evaluating metadata extraction models",
+  "created_date": "2025-01-03",
+  "curator": "Your Name",
+  "version": "1.0",
+  "samples": [
+    {
+      "sample_id": "SAMN12345678",
+      "bioproject_id": "PRJNA1170270",
+      "study_title": "Ribosome profiling of mouse liver under fasting conditions",
+      "study_description": "We performed ribosome profiling (Ribo-seq) and RNA-seq to study translational regulation in mouse liver during fasting. Adult male C57BL/6 mice were fasted for 24 hours before liver tissue collection.",
+      "sample_title": "Liver_fasted_rep1",
+      "ground_truth": {
+        "tissue": "liver",
+        "cell_type": null,
+        "cell_line": null,
+        "treatment": "fasting",
+        "strain": "C57BL/6",
+        "age": "adult",
+        "sex": "male"
+      }
+    }
+  ]
+}

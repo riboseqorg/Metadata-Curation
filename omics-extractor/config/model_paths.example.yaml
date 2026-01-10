@@ -1,0 +1,39 @@
+# Model paths configuration for local model testing
+# Copy this to model_paths.yaml and update with your actual paths
+
+# Local model paths (on cluster/A100)
+local_models:
+  # Llama 3.3 70B Instruct (recommended for production)
+  llama-3.3-70b:
+    path: "/path/to/models/Llama-3.3-70B-Instruct"
+    provider: "vllm"
+    tensor_parallel_size: 2  # Use 2 GPUs if available
+    gpu_memory_utilization: 0.9
+
+  # Qwen 2.5 72B Instruct (excellent for structured extraction)
+  qwen-2.5-72b:
+    path: "/path/to/models/Qwen2.5-72B-Instruct"
+    provider: "vllm"
+    tensor_parallel_size: 2
+    gpu_memory_utilization: 0.9
+
+  # Mixtral 8x22B Instruct (fast with good quality)
+  mixtral-8x22b:
+    path: "/path/to/models/Mixtral-8x22B-Instruct-v0.1"
+    provider: "vllm"
+    tensor_parallel_size: 2
+    gpu_memory_utilization: 0.9
+
+  # Llama 3.1 8B Instruct (for CPU/single GPU testing)
+  llama-3.1-8b:
+    path: "/path/to/models/Llama-3.1-8B-Instruct"
+    provider: "transformers"  # Can run on CPU
+    device: "cuda"  # or "cpu"
+
+# Claude API (for baseline comparison)
+claude:
+  model: "claude-sonnet-4-5-20250929"
+  # API key from environment variable ANTHROPIC_API_KEY
+
+# Default model for testing
+default: "llama-3.3-70b"
