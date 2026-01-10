@@ -11,15 +11,16 @@ echo "VLLM Setup for Cluster"
 echo "=================================="
 echo
 
-# Check for GPU
-if ! command -v nvidia-smi &> /dev/null; then
-    echo "❌ nvidia-smi not found. This script requires NVIDIA GPUs."
-    exit 1
+# Check for GPU (optional - can setup on login node)
+if command -v nvidia-smi &> /dev/null; then
+    echo "✓ Found NVIDIA GPU(s):"
+    nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
+    echo
+else
+    echo "ℹ No GPU detected (running on login node)"
+    echo "  VLLM will be installed but requires GPU to run"
+    echo
 fi
-
-echo "✓ Found NVIDIA GPU(s):"
-nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
-echo
 
 # Check Python version
 PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
@@ -52,19 +53,30 @@ pip install vllm
 echo "Installing dependencies..."
 pip install torch transformers accelerate
 
+# Install omics-extractor package in development mode
+echo "Installing omics-extractor package..."
+pip install -e .
+
 echo
 echo "=================================="
 echo "✅ VLLM Setup Complete!"
 echo "=================================="
 echo
+echo "Virtual environment created: .venv-vllm"
+echo
+echo "To activate in future sessions:"
+echo "  source .venv-vllm/bin/activate"
+echo
 echo "Next steps:"
-echo "1. Download model weights (or use existing paths)"
-echo "2. Update config/model_paths.yaml with your model paths"
-echo "3. Run test_local_models.py to verify setup"
+echo "1. Setup work directory:"
+echo "   cd /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation"
+echo "   bash /hps/software/users/ensembl/genebuild/jackt/RiboSeq/Metadata-Curation/omics-extractor/cluster/setup_work_directory.sh"
 echo
-echo "To download models (example for Llama 3.3 70B):"
-echo "  huggingface-cli download meta-llama/Llama-3.3-70B-Instruct --local-dir /path/to/models/Llama-3.3-70B-Instruct"
+echo "2. Copy batch results from local machine"
 echo
-echo "Or use existing model paths if already downloaded"
+echo "3. Configure model path in work directory:"
+echo "   nano /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/config/model_paths.yaml"
+echo
+echo "4. Test in interactive GPU session (see cluster/SETUP_INSTRUCTIONS.md)"
 echo
 
