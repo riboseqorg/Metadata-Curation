@@ -181,6 +181,90 @@ def validate_command(args):
         sys.exit(1)
 
 
+def _batch_enrich_with_provider(
+    input_files: List[Path],
+    output_dir: Path,
+    provider,
+    resume: bool = False,
+) -> Dict:
+    """Batch enrich files using a pre-loaded provider (for local models)."""
+    stats = {
+        "total_files": len(input_files),
+        "processed": 0,
+        "failed": 0,
+        "total_samples": 0,
+        "total_enriched": 0,
+    }
+
+    for i, input_path in enumerate(input_files, 1):
+        output_path = output_dir / f"{input_path.stem}_enriched.json"
+
+        # Skip if resume and output exists
+        if resume and output_path.exists():
+            print(f"[{i}/{len(input_files)}] Skipping {input_path.name} (already exists)")
+            stats["processed"] += 1
+            continue
+
+        print(f"[{i}/{len(input_files)}] Processing {input_path.name}...")
+
+        try:
+            with open(input_path) as f:
+                data = json.load(f)
+
+            # Get study context
+            study = data.get("study", {})
+            study_title = study.get("title", {}).get("value", "")
+            study_description = study.get("description", {}).get("value", "")
+            abstract = study.get("abstract", {}).get("value")
+
+            samples = data.get("samples", {})
+            stats["total_samples"] += len(samples)
+
+            enriched_count = 0
+            for sample_id, sample_data in samples.items():
+                try:
+                    sample = SampleMetadata(**sample_data)
+                    sample_title = sample_data.get("sample_title", {}).get("value")
+                    sample_description = sample_data.get("sample_description", {}).get("value")
+
+                    enriched_sample = enrich_sample_metadata(
+                        sample=sample,
+                        study_title=study_title,
+                        study_description=study_description,
+                        study_abstract=abstract,
+                        sample_title=sample_title,
+                        sample_description=sample_description,
+                        provider=provider,
+                    )
+
+                    samples[sample_id] = enriched_sample.model_dump()
+                    enriched_count += 1
+                except Exception as e:
+                    print(f"  ⚠️  Failed to enrich sample {sample_id}: {e}")
+                    continue
+
+            # Save enriched data
+            data["samples"] = samples
+            data["enrichment_metadata"] = {
+                "timestamp": datetime.now().isoformat(),
+                "samples_enriched": enriched_count,
+            }
+
+            with open(output_path, "w") as f:
+                json.dump(data, f, indent=2, default=serialize_metadata)
+
+            stats["processed"] += 1
+            stats["total_enriched"] += enriched_count
+            print(f"  ✓ Enriched {enriched_count}/{len(samples)} samples")
+
+        except Exception as e:
+            print(f"  ✗ Failed: {e}")
+            stats["failed"] += 1
+            continue
+
+    return stats
+
+
 def load_provider_from_config(model_name: str, config_path: Path):
     """Load LLM provider from config file."""
     if not config_path.exists():
@@ -412,17 +496,27 @@ def batch_enrich_command(args):
 
         print(f"Processing {len(input_files)} files...")
         print(f"Output directory: {output_dir}")
-        print(f"Workers: {args.workers}, Rate limit: {args.rate_limit} req/min")
 
-        # Batch enrich
-        stats = enrich_batch_from_files(
-            input_files=input_files,
-            output_dir=output_dir,
-            api_key=api_key,
-            max_workers=args.workers,
-            rate_limit_rpm=args.rate_limit,
-            resume=args.resume,
-        )
+        if args.model:
+            # Local model mode - process sequentially with loaded model
+            print(f"Using local model (sequential processing)")
+            stats = _batch_enrich_with_provider(
+                input_files=input_files,
+                output_dir=output_dir,
+                provider=provider,
+                resume=args.resume,
+            )
+        else:
+            # Claude API mode - use concurrent workers
+            print(f"Workers: {args.workers}, Rate limit: {args.rate_limit} req/min")
+            stats = enrich_batch_from_files(
+                input_files=input_files,
+                output_dir=output_dir,
+                api_key=api_key,
+                max_workers=args.workers,
+                rate_limit_rpm=args.rate_limit,
+                resume=args.resume,
+            )
 
         # Report results
         print("\n" + "=" * 60)
