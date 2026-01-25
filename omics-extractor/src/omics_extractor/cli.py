@@ -245,7 +245,15 @@ def _batch_enrich_with_provider(
                         quick_view = sample_data.get("quick_view", {})
                         bio_meta = sample_data.get("biological_metadata", {})
 
-                        bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
+                        # Get bioproject_id with multiple fallbacks
+                        bioproject_id = quick_view.get("bioproject_id")
+                        if not bioproject_id:
+                            bioproject_id = study.get("bioproject_id") or study.get("bioproject", {}).get("value")
+                        if not bioproject_id:
+                            import re
+                            match = re.search(r'(PRJ[A-Z]+\d+)', str(input_path.name))
+                            if match:
+                                bioproject_id = match.group(1)
 
                         flat_data = {
                             "sample_id": quick_view.get("sample_id"),
@@ -269,7 +277,22 @@ def _batch_enrich_with_provider(
                         sample_title = sample_data.get("sample_title", {}).get("value")
                         sample_description = sample_data.get("sample_description", {}).get("value")
                     else:
-                        # Already in flat format - just construct SampleMetadata
+                        # Already in flat format - but check for None bioproject_id
+                        if sample_data.get("bioproject_id") is None:
+                            # Try to get from study (check both direct field and nested dict)
+                            bioproject_id = study.get("bioproject_id")
+                            if not bioproject_id:
+                                bioproject_id = study.get("bioproject", {}).get("value")
+                            # If still None, try to extract from filename (e.g., PRJNA123456_metadata.json)
+                            if not bioproject_id:
+                                import re
+                                match = re.search(r'(PRJ[A-Z]+\d+)', str(input_path.name))
+                                if match:
+                                    bioproject_id = match.group(1)
+                            # Update sample_data with extracted bioproject_id
+                            if bioproject_id:
+                                sample_data["bioproject_id"] = bioproject_id
+
                         sample = SampleMetadata(**sample_data)
                         sample_title = getattr(sample.sample_title, 'value', None) if sample.sample_title else None
                         sample_description = getattr(sample.sample_description, 'value', None) if sample.sample_description else None
