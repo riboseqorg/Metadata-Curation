@@ -223,7 +223,22 @@ def _batch_enrich_with_provider(
             enriched_count = 0
             for sample_id, sample_data in samples.items():
                 try:
-                    sample = SampleMetadata(**sample_data)
+                    # Extract from traceable format to flat SampleMetadata
+                    quick_view = sample_data.get("quick_view", {})
+                    bio_meta = sample_data.get("biological_metadata", {})
+
+                    flat_data = {
+                        "sample_id": quick_view.get("sample_id"),
+                        "bioproject_id": quick_view.get("bioproject_id"),
+                        "organism": quick_view.get("organism"),
+                    }
+
+                    # Extract biological fields
+                    for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
+                        if field in bio_meta and bio_meta[field].get("value"):
+                            flat_data[field] = bio_meta[field]["value"]
+
+                    sample = SampleMetadata(**flat_data)
                     sample_title = sample_data.get("sample_title", {}).get("value")
                     sample_description = sample_data.get("sample_description", {}).get("value")
 
@@ -237,8 +252,19 @@ def _batch_enrich_with_provider(
                         provider=provider,
                     )
 
-                    samples[sample_id] = enriched_sample.model_dump()
-                    enriched_count += 1
+                    # Update traceable format with enriched values
+                    for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
+                        new_val = getattr(enriched_sample, field, None)
+                        old_val = bio_meta.get(field, {}).get("value")
+                        if new_val and not old_val:
+                            if field not in bio_meta:
+                                bio_meta[field] = {}
+                            bio_meta[field]["value"] = new_val
+                            bio_meta[field]["source"] = "llm_enrichment"
+                            bio_meta[field]["confidence"] = 0.8
+                            quick_view[field] = new_val
+                            enriched_count += 1
+
                 except Exception as e:
                     print(f"  ⚠️  Failed to enrich sample {sample_id}: {e}")
                     continue
@@ -382,8 +408,22 @@ def enrich_command(args):
             if args.verbose:
                 print(f"  [{i}/{len(samples_to_enrich)}] {sample_id} (missing: {', '.join(missing) or 'none'})")
 
-            # Reconstruct SampleMetadata from dict
-            sample = SampleMetadata(**sample_data)
+            # Extract from traceable format to flat SampleMetadata
+            quick_view = sample_data.get("quick_view", {})
+            bio_meta = sample_data.get("biological_metadata", {})
+
+            flat_data = {
+                "sample_id": quick_view.get("sample_id"),
+                "bioproject_id": quick_view.get("bioproject_id"),
+                "organism": quick_view.get("organism"),
+            }
+
+            # Extract biological fields
+            for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
+                if field in bio_meta and bio_meta[field].get("value"):
+                    flat_data[field] = bio_meta[field]["value"]
+
+            sample = SampleMetadata(**flat_data)
 
             # Get sample-specific context
             sample_title = sample_data.get("sample_title", {}).get("value")
@@ -402,20 +442,19 @@ def enrich_command(args):
                     source_id=f"llm_enrichment_{sample_id}",
                 )
 
-                # Track what was added
-                if enriched_sample.tissue and not sample.tissue:
-                    fields_added["tissue"] += 1
-                if enriched_sample.cell_type and not sample.cell_type:
-                    fields_added["cell_type"] += 1
-                if enriched_sample.cell_line and not sample.cell_line:
-                    fields_added["cell_line"] += 1
-                if enriched_sample.treatment and not sample.treatment:
-                    fields_added["treatment"] += 1
-                if enriched_sample.strain and not sample.strain:
-                    fields_added["strain"] += 1
+                # Update traceable format with enriched values
+                for field in ["tissue", "cell_type", "cell_line", "strain", "treatment"]:
+                    new_val = getattr(enriched_sample, field, None)
+                    old_val = bio_meta.get(field, {}).get("value")
+                    if new_val and not old_val:
+                        if field not in bio_meta:
+                            bio_meta[field] = {}
+                        bio_meta[field]["value"] = new_val
+                        bio_meta[field]["source"] = "llm_enrichment"
+                        bio_meta[field]["confidence"] = 0.8
+                        quick_view[field] = new_val
+                        fields_added[field] += 1
 
-                # Update in data
-                samples[sample_id] = enriched_sample.model_dump()
                 enriched_count += 1
 
             except Exception as e:
