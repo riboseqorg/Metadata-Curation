@@ -1,34 +1,53 @@
 # Model paths configuration for local model testing
 # Copy this to model_paths.yaml and update with your actual paths
+#
+# NOTE: tensor_parallel_size is auto-adjusted based on available GPUs
+# If you have 1 GPU, it will automatically use 1 regardless of config value
 
 # Local model paths (on cluster/A100)
 local_models:
-  # Llama 3.3 70B Instruct (recommended for production)
-  llama-3.3-70b:
-    path: "/path/to/models/Llama-3.3-70B-Instruct"
+  # ==========================================
+  # FREE MODELS (No HuggingFace auth required)
+  # ==========================================
+
+  # Qwen 2.5 7B Instruct (RECOMMENDED - single GPU)
+  qwen-2.5-7b:
+    path: "/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/models/Qwen2.5-7B-Instruct"
     provider: "vllm"
-    tensor_parallel_size: 2  # Use 2 GPUs if available
+    tensor_parallel_size: 1  # Single GPU
     gpu_memory_utilization: 0.9
 
-  # Qwen 2.5 72B Instruct (excellent for structured extraction)
+  # Qwen 2.5 72B Instruct (best quality - multi GPU)
   qwen-2.5-72b:
-    path: "/path/to/models/Qwen2.5-72B-Instruct"
+    path: "/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/models/Qwen2.5-72B-Instruct"
     provider: "vllm"
-    tensor_parallel_size: 2
+    tensor_parallel_size: 2  # Auto-adjusted to 1 if only 1 GPU available
     gpu_memory_utilization: 0.9
 
-  # Mixtral 8x22B Instruct (fast with good quality)
-  mixtral-8x22b:
-    path: "/path/to/models/Mixtral-8x22B-Instruct-v0.1"
+  # Mistral 7B Instruct v0.3 (alternative - single GPU)
+  mistral-7b:
+    path: "/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/models/Mistral-7B-Instruct-v0.3"
     provider: "vllm"
-    tensor_parallel_size: 2
+    tensor_parallel_size: 1  # Single GPU
     gpu_memory_utilization: 0.9
 
-  # Llama 3.1 8B Instruct (for CPU/single GPU testing)
+  # ==========================================
+  # GATED MODELS (Require HuggingFace login)
+  # ==========================================
+
+  # Llama 3.1 8B Instruct (single GPU)
   llama-3.1-8b:
-    path: "/path/to/models/Llama-3.1-8B-Instruct"
-    provider: "transformers"  # Can run on CPU
-    device: "cuda"  # or "cpu"
+    path: "/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/models/Llama-3.1-8B-Instruct"
+    provider: "vllm"
+    tensor_parallel_size: 1  # Single GPU
+    gpu_memory_utilization: 0.9
+
+  # Llama 3.3 70B Instruct (multi GPU)
+  llama-3.3-70b:
+    path: "/hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/models/Llama-3.3-70B-Instruct"
+    provider: "vllm"
+    tensor_parallel_size: 2  # Auto-adjusted to 1 if only 1 GPU available
+    gpu_memory_utilization: 0.9
 
 # Claude API (for baseline comparison)
 claude:
@@ -36,4 +55,4 @@ claude:
   # API key from environment variable ANTHROPIC_API_KEY
 
 # Default model for testing
-default: "llama-3.3-70b"
+default: "qwen-2.5-7b"  # Best for single GPU testing

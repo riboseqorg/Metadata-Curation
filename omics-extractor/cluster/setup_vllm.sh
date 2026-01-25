@@ -68,6 +68,10 @@ pip install torch transformers accelerate
 echo "Installing omics-extractor package..."
 pip install -e .
 
+# Install huggingface-hub for model downloads
+echo "Installing huggingface-hub..."
+pip install huggingface-hub[cli]
+
 echo
 echo "=================================="
 echo "✅ VLLM Setup Complete!"
@@ -79,16 +83,35 @@ echo
 echo "To activate in future sessions:"
 echo "  source $VENV_DIR/bin/activate"
 echo
-echo "Next steps:"
-echo "1. Setup work directory:"
-echo "   cd /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation"
-echo "   bash /hps/software/users/ensembl/genebuild/jackt/RiboSeq/Metadata-Curation/omics-extractor/cluster/setup_work_directory.sh"
+echo "=================================="
+echo "Model Download Options"
+echo "=================================="
 echo
-echo "2. Copy batch resgults from local machine"
+echo "Would you like to download a model now?"
+echo "This is required for testing but can be done later."
 echo
-echo "3. Configure model path in work directory:"
-echo "   nano /hps/nobackup/flicek/ensembl/genebuild/jackt/metadata-curation/config/model_paths.yaml"
-echo
-echo "4. Test in interactive GPU session (see cluster/SETUP_INSTRUCTIONS.md)"
+read -p "Download model now? (Y/n): " download_choice
+
+if [[ ! "$download_choice" =~ ^[Nn]$ ]]; then
+    # Get script directory
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    echo
+    bash "$SCRIPT_DIR/download_model.sh"
+    echo
+    echo "Next steps:"
+    echo "1. Test in interactive GPU session (see cluster/SETUP_INSTRUCTIONS.md)"
+else
+    echo
+    echo "To download a model later, run:"
+    echo "  bash omics-extractor/cluster/download_model.sh"
+    echo
+    echo "Or non-interactively:"
+    echo "  bash omics-extractor/cluster/download_model.sh --model llama-70b"
+    echo "  bash omics-extractor/cluster/download_model.sh --model llama-8b --skip-existing"
+    echo
+    echo "Next steps:"
+    echo "1. Download a model (see above)"
+    echo "2. Test in interactive GPU session (see cluster/SETUP_INSTRUCTIONS.md)"
+fi
 echo
 

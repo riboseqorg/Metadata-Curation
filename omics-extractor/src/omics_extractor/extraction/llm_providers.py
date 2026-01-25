@@ -202,7 +202,7 @@ class VLLMProvider(LLMProvider):
 
         Args:
             model_path: HuggingFace model path or local path
-            tensor_parallel_size: Number of GPUs for tensor parallelism
+            tensor_parallel_size: Number of GPUs for tensor parallelism (auto-adjusted if needed)
             gpu_memory_utilization: Fraction of GPU memory to use
         """
         self.model_path = model_path
@@ -217,6 +217,21 @@ class VLLMProvider(LLMProvider):
                 "VLLM not installed. Install with: pip install vllm\n"
                 "For A100 deployment, VLLM provides the best performance."
             )
+
+        # Auto-detect and validate GPU count
+        try:
+            import torch
+            num_gpus = torch.cuda.device_count()
+
+            if tensor_parallel_size > num_gpus:
+                print(f"⚠️  Warning: tensor_parallel_size={tensor_parallel_size} but only {num_gpus} GPU(s) available")
+                print(f"   Auto-adjusting to tensor_parallel_size={num_gpus}")
+                tensor_parallel_size = num_gpus
+
+            if tensor_parallel_size > 1:
+                print(f"Using {tensor_parallel_size} GPUs for tensor parallelism")
+        except:
+            pass  # Proceed with user-provided value if detection fails
 
         # Initialize model (this caches after first load)
         print(f"Loading {model_path} with VLLM (this may take a few minutes)...")
