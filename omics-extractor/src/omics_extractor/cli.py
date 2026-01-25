@@ -181,6 +181,20 @@ def validate_command(args):
         sys.exit(1)
 
 
+def _ensure_base_provenance(field_dict: dict, default_source: str = "structured_field") -> dict:
+    """Ensure a dict has all required BaseProvenance fields."""
+    if not isinstance(field_dict, dict):
+        return field_dict
+
+    # If it has a value but missing source/confidence, add defaults
+    if "value" in field_dict:
+        field_dict.setdefault("source", default_source)
+        field_dict.setdefault("source_id", "unknown")
+        field_dict.setdefault("confidence", 0.9)
+
+    return field_dict
+
+
 def _batch_enrich_with_provider(
     input_files: List[Path],
     output_dir: Path,
@@ -223,35 +237,42 @@ def _batch_enrich_with_provider(
             enriched_count = 0
             for sample_id, sample_data in samples.items():
                 try:
-                    # Extract from traceable format to flat SampleMetadata
-                    quick_view = sample_data.get("quick_view", {})
-                    bio_meta = sample_data.get("biological_metadata", {})
+                    # Detect format: traceable (has quick_view/biological_metadata) or flat (direct SampleMetadata)
+                    is_traceable = "quick_view" in sample_data or "biological_metadata" in sample_data
 
-                    # Get bioproject_id from study if not in quick_view
-                    bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
+                    if is_traceable:
+                        # Extract from traceable format
+                        quick_view = sample_data.get("quick_view", {})
+                        bio_meta = sample_data.get("biological_metadata", {})
 
-                    flat_data = {
-                        "sample_id": quick_view.get("sample_id"),
-                        "bioproject_id": bioproject_id,
-                        "organism": bio_meta.get("organism", {}),  # Keep as dict/BaseProvenance
-                    }
+                        bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
 
-                    # Extract all BaseProvenance fields (keep as dicts, not just values)
-                    provenance_fields = [
-                        "tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
-                        "developmental_stage", "age", "sex", "genotype", "condition",
-                        "timepoint", "replicate", "batch", "stress", "temperature",
-                        "growth_condition", "sample_title", "sample_description"
-                    ]
-                    for field in provenance_fields:
-                        if field in bio_meta:
-                            flat_data[field] = bio_meta[field]
-                        elif field in sample_data and isinstance(sample_data.get(field), dict):
-                            flat_data[field] = sample_data[field]
+                        flat_data = {
+                            "sample_id": quick_view.get("sample_id"),
+                            "bioproject_id": bioproject_id,
+                            "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
+                        }
 
-                    sample = SampleMetadata(**flat_data)
-                    sample_title = sample_data.get("sample_title", {}).get("value")
-                    sample_description = sample_data.get("sample_description", {}).get("value")
+                        provenance_fields = [
+                            "tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
+                            "developmental_stage", "age", "sex", "genotype", "condition",
+                            "timepoint", "replicate", "batch", "stress", "temperature",
+                            "growth_condition", "sample_title", "sample_description"
+                        ]
+                        for field in provenance_fields:
+                            if field in bio_meta:
+                                flat_data[field] = _ensure_base_provenance(bio_meta[field])
+                            elif field in sample_data and isinstance(sample_data.get(field), dict):
+                                flat_data[field] = _ensure_base_provenance(sample_data[field])
+
+                        sample = SampleMetadata(**flat_data)
+                        sample_title = sample_data.get("sample_title", {}).get("value")
+                        sample_description = sample_data.get("sample_description", {}).get("value")
+                    else:
+                        # Already in flat format - just construct SampleMetadata
+                        sample = SampleMetadata(**sample_data)
+                        sample_title = getattr(sample.sample_title, 'value', None) if sample.sample_title else None
+                        sample_description = getattr(sample.sample_description, 'value', None) if sample.sample_description else None
 
                     enriched_sample = enrich_sample_metadata(
                         sample=sample,
@@ -263,18 +284,37 @@ def _batch_enrich_with_provider(
                         provider=provider,
                     )
 
-                    # Update traceable format with enriched values
-                    for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
-                        new_val = getattr(enriched_sample, field, None)
-                        old_val = bio_meta.get(field, {}).get("value")
-                        if new_val and not old_val:
-                            if field not in bio_meta:
-                                bio_meta[field] = {}
-                            bio_meta[field]["value"] = new_val
-                            bio_meta[field]["source"] = "llm_enrichment"
-                            bio_meta[field]["confidence"] = 0.8
-                            quick_view[field] = new_val
-                            enriched_count += 1
+                    # Update format with enriched values
+                    fields_to_enrich = ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]
+
+                    if is_traceable:
+                        # Update traceable format
+                        for field in fields_to_enrich:
+                            new_val = getattr(enriched_sample, field, None)
+                            old_val = bio_meta.get(field, {}).get("value")
+                            if new_val and not old_val:
+                                if field not in bio_meta:
+                                    bio_meta[field] = {}
+                                bio_meta[field]["value"] = new_val
+                                bio_meta[field]["source"] = "llm_enrichment"
+                                bio_meta[field]["confidence"] = 0.8
+                                quick_view[field] = new_val
+                                enriched_count += 1
+                    else:
+                        # Update flat format
+                        for field in fields_to_enrich:
+                            new_val = getattr(enriched_sample, field, None)
+                            old_field = getattr(sample, field, None)
+                            old_val = old_field.value if isinstance(old_field, dict) and hasattr(old_field, 'value') else old_field
+                            if new_val and not old_val:
+                                # Update the field in sample_data with BaseProvenance structure
+                                sample_data[field] = {
+                                    "value": new_val,
+                                    "source": "llm_enrichment",
+                                    "source_id": "unknown",
+                                    "confidence": 0.8
+                                }
+                                enriched_count += 1
 
                 except Exception as e:
                     print(f"  ⚠️  Failed to enrich sample {sample_id}: {e}")
