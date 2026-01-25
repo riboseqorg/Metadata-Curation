@@ -242,7 +242,7 @@ def enrich_sample_metadata(
 
     # Extract with LLM (provider or Claude)
     if provider is not None:
-        # Use generic provider interface
+        # Use generic provider interface (returns LLMExtractionResult directly)
         prompt = build_extraction_prompt(
             study_title=study_title,
             study_description=study_description,
@@ -251,8 +251,7 @@ def enrich_sample_metadata(
             abstract=abstract,
             existing_metadata=existing,
         )
-        response_text = provider.extract(prompt)
-        llm_result = LLMExtractionResult(**json.loads(response_text))
+        llm_result = provider.extract(prompt)
     else:
         # Use Claude directly (backward compatibility)
         llm_result = extract_with_claude(
