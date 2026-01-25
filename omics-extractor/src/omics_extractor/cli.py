@@ -229,7 +229,7 @@ def _batch_enrich_with_provider(
             study = data.get("study", {})
             study_title = study.get("title", {}).get("value", "")
             study_description = study.get("description", {}).get("value", "")
-            abstract = study.get("abstract", {}).get("value")
+            abstract = study.get("paper_abstract", {}).get("value")
 
             samples = data.get("samples", {})
             stats["total_samples"] += len(samples)
@@ -301,7 +301,7 @@ def _batch_enrich_with_provider(
                         sample=sample,
                         study_title=study_title,
                         study_description=study_description,
-                        study_abstract=abstract,
+                        abstract=abstract,
                         sample_title=sample_title,
                         sample_description=sample_description,
                         provider=provider,
@@ -437,7 +437,7 @@ def enrich_command(args):
         study = data.get("study", {})
         study_title = study.get("title", {}).get("value", "")
         study_description = study.get("description", {}).get("value", "")
-        abstract = study.get("abstract", {}).get("value")
+        abstract = study.get("paper_abstract", {}).get("value")
 
         # Get samples
         samples = data.get("samples", {})
@@ -487,15 +487,15 @@ def enrich_command(args):
             bio_meta = sample_data.get("biological_metadata", {})
 
             # Get bioproject_id from study if not in quick_view
-            bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
+            bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject_id") or study.get("bioproject", {}).get("value")
 
             flat_data = {
                 "sample_id": quick_view.get("sample_id"),
                 "bioproject_id": bioproject_id,
-                "organism": bio_meta.get("organism", {}),  # Keep as dict/BaseProvenance
+                "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
             }
 
-            # Extract all BaseProvenance fields (keep as dicts, not just values)
+            # Extract all BaseProvenance fields (keep as dicts, ensure required fields)
             provenance_fields = [
                 "tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
                 "developmental_stage", "age", "sex", "genotype", "condition",
@@ -504,9 +504,9 @@ def enrich_command(args):
             ]
             for field in provenance_fields:
                 if field in bio_meta:
-                    flat_data[field] = bio_meta[field]
+                    flat_data[field] = _ensure_base_provenance(bio_meta[field])
                 elif field in sample_data and isinstance(sample_data.get(field), dict):
-                    flat_data[field] = sample_data[field]
+                    flat_data[field] = _ensure_base_provenance(sample_data[field])
 
             sample = SampleMetadata(**flat_data)
 
@@ -523,21 +523,22 @@ def enrich_command(args):
                     sample_title=sample_title,
                     sample_description=sample_description,
                     abstract=abstract,
-                    api_key=api_key,
+                    provider=provider,
                     source_id=f"llm_enrichment_{sample_id}",
                 )
 
                 # Update traceable format with enriched values
                 for field in ["tissue", "cell_type", "cell_line", "strain", "treatment"]:
-                    new_val = getattr(enriched_sample, field, None)
+                    new_field = getattr(enriched_sample, field, None)
                     old_val = bio_meta.get(field, {}).get("value")
-                    if new_val and not old_val:
+                    # new_field is a BaseProvenance object, extract .value
+                    if new_field and new_field.value and not old_val:
                         if field not in bio_meta:
                             bio_meta[field] = {}
-                        bio_meta[field]["value"] = new_val
-                        bio_meta[field]["source"] = "llm_enrichment"
-                        bio_meta[field]["confidence"] = 0.8
-                        quick_view[field] = new_val
+                        bio_meta[field]["value"] = new_field.value
+                        bio_meta[field]["source"] = new_field.source
+                        bio_meta[field]["confidence"] = new_field.confidence
+                        quick_view[field] = new_field.value
                         fields_added[field] += 1
 
                 enriched_count += 1

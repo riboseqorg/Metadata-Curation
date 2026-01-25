@@ -196,6 +196,7 @@ def enrich_sample_metadata(
     sample_description: Optional[str] = None,
     abstract: Optional[str] = None,
     api_key: Optional[str] = None,
+    provider = None,  # LLMProvider instance
     source_id: str = "llm_extraction",
 ) -> SampleMetadata:
     """
@@ -211,7 +212,8 @@ def enrich_sample_metadata(
         sample_title: Sample title
         sample_description: Sample description
         abstract: Publication abstract (optional)
-        api_key: Anthropic API key
+        api_key: Anthropic API key (for Claude, if provider not provided)
+        provider: LLMProvider instance (if provided, uses this instead of api_key)
         source_id: Source identifier for provenance
 
     Returns:
@@ -238,16 +240,30 @@ def enrich_sample_metadata(
     if sample.developmental_stage and sample.developmental_stage.value:
         existing["developmental_stage"] = sample.developmental_stage.value
 
-    # Extract with Claude
-    llm_result = extract_with_claude(
-        study_title=study_title,
-        study_description=study_description,
-        sample_title=sample_title,
-        sample_description=sample_description,
-        abstract=abstract,
-        existing_metadata=existing,
-        api_key=api_key,
-    )
+    # Extract with LLM (provider or Claude)
+    if provider is not None:
+        # Use generic provider interface
+        prompt = build_extraction_prompt(
+            study_title=study_title,
+            study_description=study_description,
+            sample_title=sample_title,
+            sample_description=sample_description,
+            abstract=abstract,
+            existing_metadata=existing,
+        )
+        response_text = provider.extract(prompt)
+        llm_result = LLMExtractionResult(**json.loads(response_text))
+    else:
+        # Use Claude directly (backward compatibility)
+        llm_result = extract_with_claude(
+            study_title=study_title,
+            study_description=study_description,
+            sample_title=sample_title,
+            sample_description=sample_description,
+            abstract=abstract,
+            existing_metadata=existing,
+            api_key=api_key,
+        )
 
     # Field confidence for LLM extraction (source field is study description/abstract)
     # This is lower because we're inferring from high-level descriptions
