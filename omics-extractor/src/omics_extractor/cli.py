@@ -227,16 +227,27 @@ def _batch_enrich_with_provider(
                     quick_view = sample_data.get("quick_view", {})
                     bio_meta = sample_data.get("biological_metadata", {})
 
+                    # Get bioproject_id from study if not in quick_view
+                    bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
+
                     flat_data = {
                         "sample_id": quick_view.get("sample_id"),
-                        "bioproject_id": quick_view.get("bioproject_id"),
-                        "organism": quick_view.get("organism"),
+                        "bioproject_id": bioproject_id,
+                        "organism": bio_meta.get("organism", {}),  # Keep as dict/BaseProvenance
                     }
 
-                    # Extract biological fields
-                    for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
-                        if field in bio_meta and bio_meta[field].get("value"):
-                            flat_data[field] = bio_meta[field]["value"]
+                    # Extract all BaseProvenance fields (keep as dicts, not just values)
+                    provenance_fields = [
+                        "tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
+                        "developmental_stage", "age", "sex", "genotype", "condition",
+                        "timepoint", "replicate", "batch", "stress", "temperature",
+                        "growth_condition", "sample_title", "sample_description"
+                    ]
+                    for field in provenance_fields:
+                        if field in bio_meta:
+                            flat_data[field] = bio_meta[field]
+                        elif field in sample_data and isinstance(sample_data.get(field), dict):
+                            flat_data[field] = sample_data[field]
 
                     sample = SampleMetadata(**flat_data)
                     sample_title = sample_data.get("sample_title", {}).get("value")
@@ -412,16 +423,27 @@ def enrich_command(args):
             quick_view = sample_data.get("quick_view", {})
             bio_meta = sample_data.get("biological_metadata", {})
 
+            # Get bioproject_id from study if not in quick_view
+            bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject", {}).get("value")
+
             flat_data = {
                 "sample_id": quick_view.get("sample_id"),
-                "bioproject_id": quick_view.get("bioproject_id"),
-                "organism": quick_view.get("organism"),
+                "bioproject_id": bioproject_id,
+                "organism": bio_meta.get("organism", {}),  # Keep as dict/BaseProvenance
             }
 
-            # Extract biological fields
-            for field in ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]:
-                if field in bio_meta and bio_meta[field].get("value"):
-                    flat_data[field] = bio_meta[field]["value"]
+            # Extract all BaseProvenance fields (keep as dicts, not just values)
+            provenance_fields = [
+                "tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
+                "developmental_stage", "age", "sex", "genotype", "condition",
+                "timepoint", "replicate", "batch", "stress", "temperature",
+                "growth_condition", "sample_title", "sample_description"
+            ]
+            for field in provenance_fields:
+                if field in bio_meta:
+                    flat_data[field] = bio_meta[field]
+                elif field in sample_data and isinstance(sample_data.get(field), dict):
+                    flat_data[field] = sample_data[field]
 
             sample = SampleMetadata(**flat_data)
 
