@@ -5,32 +5,36 @@ Quick setup for local models on cluster.
 ## Setup
 
 ```bash
-# 1. Run setup (installs VLLM + downloads model)
+# 1. Setup VLLM + download model
 bash omics-extractor/cluster/setup_vllm.sh
 
-# 2. Test it
-python omics-extractor/cluster/test_local_models.py --model qwen-2.5-7b
+# 2. Setup config
+cp omics-extractor/config/model_paths.example.yaml config/model_paths.yaml
+```
+
+## Usage
+
+```bash
+# Extract metadata (CPU)
+omics-extract extract PRJNA1170270
+
+# Enrich with local model (GPU)
+omics-extract enrich PRJNA1170270_metadata.json --model qwen-2.5-7b
+
+# Batch process many projects (GPU)
+omics-extract batch-enrich *_metadata.json --output-dir enriched/ --model mistral-7b
 ```
 
 ## Models
 
 **Free (no auth):**
-- `qwen-7b` - Download: `bash omics-extractor/cluster/download_model.sh --model qwen-7b`
-- `mistral` - Download: `bash omics-extractor/cluster/download_model.sh --model mistral`
+- `qwen-2.5-7b` - 16GB, single GPU, best quality
+- `mistral-7b` - 14GB, single GPU, good alternative
 
-**Gated (requires HF login):**
-- `llama-8b` - Requires: `huggingface-cli login`
+Download: `bash omics-extractor/cluster/download_model.sh --model <name>`
 
-## Config
+## Notes
 
-Copy: `cp omics-extractor/config/model_paths.example.yaml config/model_paths.yaml`
-
-GPU count auto-detected. If config says `tensor_parallel_size: 2` but you have 1 GPU, it auto-adjusts.
-
-## Troubleshooting
-
-**"World size (2) > available GPUs (1)"**: Fixed automatically by GPU auto-detection.
-
-**"Cannot access gated repo"**: Use free model or run `huggingface-cli login`
-
-**"CUDA out of memory"**: Use smaller model (qwen-7b instead of qwen-72b)
+- GPU count auto-detected
+- `tensor_parallel_size` auto-adjusted based on available GPUs
+- VLLM batch processing is automatic

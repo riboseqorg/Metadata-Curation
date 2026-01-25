@@ -11,6 +11,7 @@ from typing import Dict, List, Optional
 from .extraction.builder import build_project_metadata
 from .extraction.llm_extractor import enrich_sample_metadata
 from .extraction.batch_enricher import enrich_batch_from_files
+from .extraction.llm_providers import create_provider
 from .schemas.base import BaseProvenance, SampleMetadata
 from .output.formatters import (
     MetadataFormatter,
@@ -18,6 +19,7 @@ from .output.formatters import (
     create_provenance_summary,
 )
 from .output.traceable_format import create_traceable_report
+import yaml
 
 
 def serialize_metadata(obj):
@@ -179,6 +181,43 @@ def validate_command(args):
         sys.exit(1)
 
 
+def load_provider_from_config(model_name: str, config_path: Path):
+    """Load LLM provider from config file."""
+    if not config_path.exists():
+        print(f"✗ Error: Config file not found: {config_path}", file=sys.stderr)
+        print(f"   Copy config/model_paths.example.yaml to config/model_paths.yaml", file=sys.stderr)
+        sys.exit(1)
+
+    with open(config_path) as f:
+        config = yaml.safe_load(f)
+
+    model_config = config.get("local_models", {}).get(model_name)
+    if not model_config:
+        print(f"✗ Error: Model '{model_name}' not found in config", file=sys.stderr)
+        print(f"   Available models: {', '.join(config.get('local_models', {}).keys())}", file=sys.stderr)
+        sys.exit(1)
+
+    provider_type = model_config.get("provider", "vllm")
+    print(f"Loading {model_name} with {provider_type}...")
+
+    if provider_type == "vllm":
+        return create_provider(
+            "vllm",
+            model_path=model_config["path"],
+            tensor_parallel_size=model_config.get("tensor_parallel_size", 1),
+            gpu_memory_utilization=model_config.get("gpu_memory_utilization", 0.9),
+        )
+    elif provider_type == "transformers":
+        return create_provider(
+            "transformers",
+            model_path=model_config["path"],
+            device=model_config.get("device", "cuda"),
+        )
+    else:
+        print(f"✗ Error: Unknown provider type: {provider_type}", file=sys.stderr)
+        sys.exit(1)
+
+
 def enrich_command(args):
     """Enrich metadata using LLM (Phase 2 - GPU processing)."""
     print(f"Enriching metadata from {args.input}")
@@ -194,14 +233,21 @@ def enrich_command(args):
         with open(input_path) as f:
             data = json.load(f)
 
-        # Check for API key
-        api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            print(
-                "✗ Error: No API key provided. Set ANTHROPIC_API_KEY environment variable or use --api-key",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+        # Create provider based on mode
+        if args.model:
+            # Local model mode
+            config_path = Path(args.config) if args.config else Path("config/model_paths.yaml")
+            provider = load_provider_from_config(args.model, config_path)
+        else:
+            # Claude API mode (default)
+            api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                print(
+                    "✗ Error: No API key provided. Set ANTHROPIC_API_KEY environment variable or use --api-key",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            provider = create_provider("claude", api_key=api_key, model=args.claude_model or "claude-sonnet-4-5-20250929")
 
         # Extract study context
         study = data.get("study", {})
@@ -328,14 +374,21 @@ def batch_enrich_command(args):
     print("-" * 60)
 
     try:
-        # Check for API key
-        api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            print(
-                "✗ Error: No API key provided. Set ANTHROPIC_API_KEY environment variable or use --api-key",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+        # Create provider based on mode
+        if args.model:
+            # Local model mode
+            config_path = Path(args.config) if args.config else Path("config/model_paths.yaml")
+            provider = load_provider_from_config(args.model, config_path)
+        else:
+            # Claude API mode (default)
+            api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                print(
+                    "✗ Error: No API key provided. Set ANTHROPIC_API_KEY environment variable or use --api-key",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            provider = create_provider("claude", api_key=api_key, model=args.claude_model or "claude-sonnet-4-5-20250929")
 
         # Parse input files
         input_files = []
@@ -398,21 +451,24 @@ Examples:
   # Phase 1: Extract metadata (CPU nodes)
   omics-extract extract PRJNA1170270
 
-  # Phase 2: Enrich with LLM (GPU nodes)
+  # Phase 2: Enrich with local model (GPU nodes)
+  omics-extract enrich PRJNA1170270_metadata.json --model qwen-2.5-7b
+
+  # Enrich with Claude API
   omics-extract enrich PRJNA1170270_metadata.json
 
-  # Batch enrich multiple projects (GPU cluster)
+  # Batch enrich multiple projects with local model
+  omics-extract batch-enrich *_metadata.json --output-dir enriched/ --model mistral-7b
+
+  # Batch enrich with Claude API (GPU cluster)
   omics-extract batch-enrich *_metadata.json --output-dir enriched/ --workers 8
 
   # Resume interrupted batch job
-  omics-extract batch-enrich *_metadata.json --output-dir enriched/ --resume
+  omics-extract batch-enrich *_metadata.json --output-dir enriched/ --model qwen-2.5-7b --resume
 
-  # Validate extracted metadata
-  omics-extract validate metadata.json
-
-  # Full workflow
+  # Full workflow with local model
   omics-extract extract PRJNA1170270 --output data.json
-  omics-extract enrich data.json --only-if-missing
+  omics-extract enrich data.json --model qwen-2.5-7b --only-if-missing
         """,
     )
 
@@ -457,7 +513,16 @@ Examples:
         "--output", "-o", help="Output JSON file (default: <input>_enriched.json)"
     )
     enrich_parser.add_argument(
-        "--api-key", help="Anthropic API key (or set ANTHROPIC_API_KEY env var)"
+        "--model", help="Local model name from config (e.g., qwen-2.5-7b, mistral-7b)"
+    )
+    enrich_parser.add_argument(
+        "--config", help="Path to model config YAML (default: config/model_paths.yaml)"
+    )
+    enrich_parser.add_argument(
+        "--api-key", help="Anthropic API key (or set ANTHROPIC_API_KEY env var) - for Claude mode"
+    )
+    enrich_parser.add_argument(
+        "--claude-model", help="Claude model name (default: claude-sonnet-4-5-20250929)"
     )
     enrich_parser.add_argument(
         "--only-if-missing",
@@ -473,13 +538,22 @@ Examples:
         "--output-dir", "-o", required=True, help="Output directory for enriched files"
     )
     batch_parser.add_argument(
-        "--api-key", help="Anthropic API key (or set ANTHROPIC_API_KEY env var)"
+        "--model", help="Local model name from config (e.g., qwen-2.5-7b, mistral-7b)"
     )
     batch_parser.add_argument(
-        "--workers", type=int, default=4, help="Concurrent API requests (default: 4)"
+        "--config", help="Path to model config YAML (default: config/model_paths.yaml)"
     )
     batch_parser.add_argument(
-        "--rate-limit", type=int, default=50, help="Max requests per minute (default: 50)"
+        "--api-key", help="Anthropic API key (or set ANTHROPIC_API_KEY env var) - for Claude mode"
+    )
+    batch_parser.add_argument(
+        "--claude-model", help="Claude model name (default: claude-sonnet-4-5-20250929)"
+    )
+    batch_parser.add_argument(
+        "--workers", type=int, default=4, help="Concurrent API requests (default: 4, ignored for local models)"
+    )
+    batch_parser.add_argument(
+        "--rate-limit", type=int, default=50, help="Max requests per minute (default: 50, ignored for local models)"
     )
     batch_parser.add_argument(
         "--resume", action="store_true", help="Resume from checkpoints"
