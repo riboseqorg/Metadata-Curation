@@ -59,6 +59,8 @@ class EnrichedField:
 
     def appears_in_source(self) -> bool:
         """Check if value appears in source text."""
+        if not isinstance(self.value, str) or not self.value:
+            return False
         return self.value.lower() in self.all_source_text.lower()
 
 
@@ -112,6 +114,12 @@ def extract_enriched_fields(file_path: Path, min_confidence: float = 0.0, max_co
                     value = field_obj.get("value")
                     confidence = field_obj.get("confidence", 0.0)
 
+                    # Ensure value is a string (handle nested dicts)
+                    if isinstance(value, dict):
+                        value = value.get("value", str(value))
+                    if not isinstance(value, str):
+                        value = str(value) if value else None
+
                     # Filter by confidence
                     if value and min_confidence <= confidence <= max_confidence:
                         enriched_fields.append(EnrichedField(
@@ -135,6 +143,13 @@ def highlight_value_in_text(text: str, value: str, max_length: int = 150) -> str
 
     if not text:
         return "[No text available]"
+
+    # Ensure value is a string
+    if not isinstance(value, str):
+        value = str(value) if value else ""
+
+    if not value:
+        return text[:max_length] + "..." if len(text) > max_length else text
 
     value_lower = value.lower()
     text_lower = text.lower()
