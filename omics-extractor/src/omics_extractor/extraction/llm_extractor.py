@@ -7,6 +7,7 @@ import os
 import json
 
 from ..schemas.base import BaseProvenance, SampleMetadata
+from ..ontologies.mapper import normalize_tissue, normalize_cell_type, normalize_organism
 
 
 class LLMExtractionResult(BaseModel):
@@ -268,12 +269,25 @@ def enrich_sample_metadata(
     # This is lower because we're inferring from high-level descriptions
     llm_field_confidence = 0.5
 
+    # Apply ontology mapping to LLM-extracted values
+    ontology_mappings = {}
+    if llm_result.tissue:
+        normalized_tissue, tissue_id, onto_conf = normalize_tissue(llm_result.tissue)
+        ontology_mappings["tissue"] = (normalized_tissue, tissue_id, onto_conf)
+        llm_result.tissue = normalized_tissue  # Use normalized value
+
+    if llm_result.cell_type:
+        normalized_cell, cell_id, onto_conf = normalize_cell_type(llm_result.cell_type)
+        ontology_mappings["cell_type"] = (normalized_cell, cell_id, onto_conf)
+        llm_result.cell_type = normalized_cell  # Use normalized value
+
     # Add extracted fields that are missing
     if llm_result.tissue and not sample.tissue:
         norm_conf = llm_result.confidence.get("tissue", 0.5)
+        ontology_term = ontology_mappings.get("tissue", (None, None, None))[1]  # Get ontology ID
         sample.tissue = BaseProvenance(
             value=llm_result.tissue,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -281,13 +295,15 @@ def enrich_sample_metadata(
             extraction_method="llm",
             extracted_text=f"Inferred from study context",
             notes=llm_result.reasoning,
+            ontology_term=ontology_term,
         )
 
     if llm_result.cell_type and not sample.cell_type:
         norm_conf = llm_result.confidence.get("cell_type", 0.5)
+        ontology_term = ontology_mappings.get("cell_type", (None, None, None))[1]  # Get ontology ID
         sample.cell_type = BaseProvenance(
             value=llm_result.cell_type,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -295,13 +311,14 @@ def enrich_sample_metadata(
             extraction_method="llm",
             extracted_text=f"Inferred from study context",
             notes=llm_result.reasoning,
+            ontology_term=ontology_term,
         )
 
     if llm_result.cell_line and not sample.cell_line:
         norm_conf = llm_result.confidence.get("cell_line", 0.5)
         sample.cell_line = BaseProvenance(
             value=llm_result.cell_line,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -315,7 +332,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("treatment", 0.5)
         sample.treatment = BaseProvenance(
             value=llm_result.treatment,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -329,7 +346,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("genotype", 0.5)
         sample.genotype = BaseProvenance(
             value=llm_result.genotype,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -343,7 +360,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("strain", 0.5)
         sample.strain = BaseProvenance(
             value=llm_result.strain,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -357,7 +374,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("age", 0.5)
         sample.age = BaseProvenance(
             value=llm_result.age,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -371,7 +388,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("sex", 0.5)
         sample.sex = BaseProvenance(
             value=llm_result.sex,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
@@ -385,7 +402,7 @@ def enrich_sample_metadata(
         norm_conf = llm_result.confidence.get("developmental_stage", 0.5)
         sample.developmental_stage = BaseProvenance(
             value=llm_result.developmental_stage,
-            source="llm",
+            source="llm_enrichment",
             source_id=source_id,
             confidence=llm_field_confidence * norm_conf,
             field_confidence=llm_field_confidence,
