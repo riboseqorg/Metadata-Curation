@@ -27,20 +27,25 @@ pip install -e ".[dev]"
 # Activate virtual environment (if using uv)
 source .venv/bin/activate
 
-# Extract complete metadata
+# Phase 1: Extract complete metadata
 omics-extract extract PRJNA1170270
 
-# Output: PRJNA1170270_metadata.json with:
-# - Study metadata (title, description, publications)
-# - Sample metadata (tissue, cell type, treatment)
-# - Run metadata (library strategy, platform, stats)
-# - Full provenance for every field
+# Phase 2: Enrich with LLM (fill gaps)
+# Using local Mistral model:
+omics-extract enrich PRJNA1170270_metadata.json --model mistral-7b
 
-# Validate extracted metadata
-omics-extract validate PRJNA1170270_metadata.json
+# Using Claude API:
+export ANTHROPIC_API_KEY="your-key"
+omics-extract enrich PRJNA1170270_metadata.json
+```
 
-# Extract to specific file
-omics-extract extract PRJNA1170270 --output my_metadata.json
+### Batch Processing
+If you have many projects, you don't need to loop manually. Use the `batch-enrich` command:
+
+```bash
+# Enrich all metadata files in a directory
+omics-extract batch-enrich "*_metadata.json" --output-dir enriched/ --model qwen-2.5-7b
+```
 ```
 
 ## Features
