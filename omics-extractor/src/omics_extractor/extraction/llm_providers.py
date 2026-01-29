@@ -12,40 +12,9 @@ This enables benchmarking different models to find the best for your use case.
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
 import json
 import os
-
-
-@dataclass
-class LLMExtractionResult:
-    """Result from LLM extraction."""
-
-    organism: Optional[str] = None
-    tissue: Optional[str] = None
-    cell_type: Optional[str] = None
-    cell_line: Optional[str] = None
-    treatment: Optional[str] = None
-    genotype: Optional[str] = None
-    strain: Optional[str] = None
-    age: Optional[str] = None
-    sex: Optional[str] = None
-    developmental_stage: Optional[str] = None
-
-    # Per-field confidence scores (0-1)
-    confidence: Dict[str, float] = None
-
-    # Optional reasoning/explanation
-    reasoning: Optional[str] = None
-
-    # Metadata about the extraction
-    model_name: Optional[str] = None
-    tokens_used: Optional[int] = None
-    latency_ms: Optional[float] = None
-
-    def __post_init__(self):
-        if self.confidence is None:
-            self.confidence = {}
+from .llm_schemas import LLMExtractionResult
 
 
 class LLMProvider(ABC):
