@@ -272,7 +272,10 @@ def enrich_sample_metadata(
             abstract=abstract,
             existing_metadata=existing,
         )
+        print(prompt)
         llm_result = provider.extract(prompt)
+        print(llm_result)
+        print("\n")
     else:
         # Use Claude directly (backward compatibility)
         llm_result = extract_with_claude(
