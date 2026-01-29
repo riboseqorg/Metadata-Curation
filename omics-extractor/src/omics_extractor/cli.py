@@ -319,7 +319,12 @@ def _batch_enrich_with_provider(
                     )
 
                     # Update format with enriched values
-                    fields_to_enrich = ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease", "developmental_stage", "age", "sex"]
+                    fields_to_enrich = [
+                        "tissue", "cell_type", "cell_line", "strain", "genotype", 
+                        "sex", "age", "developmental_stage", "condition", "treatment", 
+                        "timepoint", "replicate", "batch", "disease", "stress", 
+                        "temperature", "growth_condition"
+                    ]
 
                     if is_traceable:
                         # Update traceable format
@@ -470,12 +475,10 @@ def enrich_command(args):
         for sample_id, sample_data in samples.items():
             # Check if any priority fields are missing
             missing_fields = []
-            if not sample_data.get("tissue") and not sample_data.get("biological_metadata", {}).get("tissue"):
-                missing_fields.append("tissue")
-            if not sample_data.get("cell_type") and not sample_data.get("biological_metadata", {}).get("cell_type"):
-                missing_fields.append("cell_type")
-            if not sample_data.get("cell_line") and not sample_data.get("biological_metadata", {}).get("cell_line"):
-                missing_fields.append("cell_line")
+            priority_fields = ["tissue", "cell_type", "cell_line", "strain", "treatment"]
+            for field in priority_fields:
+                if not sample_data.get(field) and not sample_data.get("biological_metadata", {}).get(field):
+                    missing_fields.append(field)
 
             if missing_fields:
                 samples_to_enrich.append((sample_id, sample_data, missing_fields))
@@ -556,18 +559,40 @@ def enrich_command(args):
                 )
 
                 # Update traceable format with enriched values
-                for field in ["tissue", "cell_type", "cell_line", "strain", "treatment"]:
+                all_fields = [
+                    "tissue", "cell_type", "cell_line", "strain", "genotype", 
+                    "sex", "age", "developmental_stage", "condition", "treatment", 
+                    "timepoint", "replicate", "batch", "disease", "stress", 
+                    "temperature", "growth_condition"
+                ]
+                for field in all_fields:
                     new_field = getattr(enriched_sample, field, None)
-                    old_val = bio_meta.get(field, {}).get("value")
-                    # new_field is a BaseProvenance object, extract .value
-                    if new_field and new_field.value and not old_val:
-                        if field not in bio_meta:
-                            bio_meta[field] = {}
-                        bio_meta[field]["value"] = new_field.value
-                        bio_meta[field]["source"] = new_field.source
-                        bio_meta[field]["confidence"] = new_field.confidence
-                        quick_view[field] = new_field.value
-                        fields_added[field] += 1
+                    
+                    # Detect if we are in traceable format or flat format
+                    if is_traceable:
+                        old_val = bio_meta.get(field, {}).get("value")
+                        # new_field is a BaseProvenance object, extract .value
+                        if new_field and new_field.value and not old_val:
+                            if field not in bio_meta:
+                                bio_meta[field] = {}
+                            bio_meta[field]["value"] = new_field.value
+                            bio_meta[field]["source"] = new_field.source
+                            bio_meta[field]["confidence"] = new_field.confidence
+                            quick_view[field] = new_field.value
+                            fields_added.setdefault(field, 0)
+                            fields_added[field] += 1
+                    else:
+                        # Flat format (direct sample_data)
+                        old_val = sample_data.get(field, {}).get("value") if isinstance(sample_data.get(field), dict) else sample_data.get(field)
+                        if new_field and new_field.value and not old_val:
+                            sample_data[field] = {
+                                "value": new_field.value,
+                                "source": new_field.source,
+                                "source_id": new_field.source_id,
+                                "confidence": new_field.confidence
+                            }
+                            fields_added.setdefault(field, 0)
+                            fields_added[field] += 1
 
                 enriched_count += 1
 

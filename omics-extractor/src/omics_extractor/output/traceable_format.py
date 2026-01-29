@@ -129,7 +129,8 @@ def format_sample_traceable(sample: SampleMetadata, include_raw: bool = True) ->
     }
 
     for field in ["tissue", "cell_line", "cell_type", "strain", "genotype", "sex", "age",
-                  "developmental_stage", "treatment", "condition", "disease"]:
+                  "developmental_stage", "treatment", "condition", "disease", "timepoint",
+                  "replicate", "batch", "stress", "temperature", "growth_condition"]:
         attr = getattr(sample, field, None)
         if attr and isinstance(attr, BaseProvenance):
             quick_view[field] = attr.value
@@ -323,7 +324,12 @@ def _compute_traceable_statistics(
 
     # Field coverage
     field_coverage = {}
-    critical_fields = ["organism", "tissue", "cell_line", "cell_type", "strain"]
+    critical_fields = [
+        "organism", "tissue", "cell_line", "cell_type", "strain", "genotype", 
+        "sex", "age", "developmental_stage", "condition", "treatment", 
+        "timepoint", "replicate", "batch", "disease", "stress", 
+        "temperature", "growth_condition"
+    ]
 
     for field in critical_fields:
         count = sum(
