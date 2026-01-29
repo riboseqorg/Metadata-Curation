@@ -69,12 +69,15 @@ def process_sample(sample_data: dict, study_id: str, format_type: str) -> Dict[s
         row["sample_id"] = quick_view.get("sample_id")
         row["bioproject_id"] = quick_view.get("bioproject_id")
 
-        # Extract all metadata fields
+        # Extract all metadata fields (comprehensive list from SampleMetadata schema)
         fields_to_extract = [
+            # Core biological metadata
             "organism", "tissue", "cell_type", "cell_line", "strain",
-            "treatment", "disease", "developmental_stage", "age", "sex",
-            "genotype", "condition", "timepoint", "replicate", "batch",
-            "stress", "temperature", "growth_condition"
+            "developmental_stage", "genotype", "age", "sex",
+            # Experimental conditions
+            "condition", "treatment", "timepoint", "replicate", "batch",
+            # Disease/perturbation
+            "disease", "stress", "temperature", "growth_condition"
         ]
 
         for field in fields_to_extract:
@@ -103,10 +106,13 @@ def process_sample(sample_data: dict, study_id: str, format_type: str) -> Dict[s
         row["bioproject_id"] = sample_data.get("bioproject_id")
 
         fields_to_extract = [
+            # Core biological metadata
             "organism", "tissue", "cell_type", "cell_line", "strain",
-            "treatment", "disease", "developmental_stage", "age", "sex",
-            "genotype", "condition", "timepoint", "replicate", "batch",
-            "stress", "temperature", "growth_condition"
+            "developmental_stage", "genotype", "age", "sex",
+            # Experimental conditions
+            "condition", "treatment", "timepoint", "replicate", "batch",
+            # Disease/perturbation
+            "disease", "stress", "temperature", "growth_condition"
         ]
 
         for field in fields_to_extract:
@@ -178,10 +184,13 @@ def write_table(rows: List[Dict[str, Any]], output_path: Path, delimiter: str = 
 
     # Then metadata fields (grouped with their _enriched and _ontology variants)
     base_fields = [
+        # Core biological metadata
         "organism", "tissue", "cell_type", "cell_line", "strain",
-        "treatment", "disease", "developmental_stage", "age", "sex",
-        "genotype", "condition", "timepoint", "replicate", "batch",
-        "stress", "temperature", "growth_condition"
+        "developmental_stage", "genotype", "age", "sex",
+        # Experimental conditions
+        "condition", "treatment", "timepoint", "replicate", "batch",
+        # Disease/perturbation
+        "disease", "stress", "temperature", "growth_condition"
     ]
 
     for field in base_fields:

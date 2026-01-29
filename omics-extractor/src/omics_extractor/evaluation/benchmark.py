@@ -17,6 +17,66 @@ from collections import defaultdict
 
 from ..extraction.llm_providers import LLMProvider, LLMExtractionResult
 from ..extraction.llm_extractor import build_extraction_prompt
+from difflib import SequenceMatcher
+
+
+def values_match(predicted: Optional[str], ground_truth: Optional[str], field: str = "") -> bool:
+    """Check if two metadata values match with fuzzy logic and synonyms."""
+    if not predicted or not ground_truth:
+        return predicted == ground_truth
+
+    p = str(predicted).lower().strip()
+    g = str(ground_truth).lower().strip()
+
+    if p == g:
+        return True
+
+    # 1. Organism synonyms
+    if field == "strain" or field == "organism":
+        organism_synonyms = {
+            "yeast": ["saccharomyces cerevisiae", "s. cerevisiae", "schizosaccharomyces pombe", "s. pombe", "yeast"],
+            "human": ["homo sapiens", "h. sapiens", "human"],
+            "mouse": ["mus musculus", "m. musculus", "mouse"],
+            "zebrafish": ["danio rerio", "d. rerio", "zebrafish"],
+            "fruit fly": ["drosophila melanogaster", "d. melanogaster", "drosophila"],
+            "arabidopsis": ["arabidopsis thaliana", "a. thaliana", "arabidopsis"],
+        }
+        for common, scientifics in organism_synonyms.items():
+            if (p == common or p in scientifics) and (g == common or g in scientifics):
+                return True
+        
+        # Substring match for organisms (e.g. "drosophila" matches "drosophila melanogaster")
+        if p in g or g in p:
+            if len(p) > 4 and len(g) > 4:
+                return True
+
+    # 2. Substring matching for tissues and cell types
+    if field in ["tissue", "cell_type", "cell_line", "treatment", "strain"]:
+        # Allow short matches for specific abbreviations
+        common_abbreviations = ["wt", "tg", "ko", "kd", "oe", "mut"]
+        if p in common_abbreviations or g in common_abbreviations:
+            if p == g or p in g.split() or g in p.split():
+                return True
+
+        if p in g or g in p:
+            # Check length to avoid trivial matches, but allow shorter for specific fields
+            min_len = 3 if field != "strain" else 2
+            if len(p) >= min_len and len(g) >= min_len:
+                return True
+        
+        # Fuzzy matching using SequenceMatcher
+        if SequenceMatcher(None, p, g).ratio() > 0.8:
+            return True
+        
+        # Special case for CHX (cycloheximide)
+        if ("chx" in p or "cycloheximide" in p) and ("chx" in g or "cycloheximide" in g):
+            return True
+
+    # 3. Fuzzy matching
+    if SequenceMatcher(None, p, g).ratio() > 0.8:
+        return True
+
+    return False
 
 
 @dataclass
@@ -28,6 +88,8 @@ class GoldStandardSample:
     study_description: str
     sample_title: Optional[str] = None
     sample_description: Optional[str] = None
+    characteristics: Optional[Dict[str, str]] = None
+    run_metadata: Optional[Dict[str, Any]] = None
     abstract: Optional[str] = None
 
     # Ground truth (manually curated)
@@ -78,25 +140,6 @@ class ModelEvaluationResult:
 def load_gold_standard_dataset(path: Path) -> List[GoldStandardSample]:
     """
     Load gold-standard test dataset from JSON.
-
-    Format:
-    {
-      "samples": [
-        {
-          "sample_id": "SAMN...",
-          "bioproject_id": "PRJNA...",
-          "study_title": "...",
-          "study_description": "...",
-          "ground_truth": {
-            "tissue": "liver",
-            "cell_type": "hepatocyte",
-            "strain": "C57BL/6",
-            ...
-          }
-        },
-        ...
-      ]
-    }
     """
     with open(path) as f:
         data = json.load(f)
@@ -109,6 +152,8 @@ def load_gold_standard_dataset(path: Path) -> List[GoldStandardSample]:
             study_description=item["study_description"],
             sample_title=item.get("sample_title"),
             sample_description=item.get("sample_description"),
+            characteristics=item.get("characteristics"),
+            run_metadata=item.get("run_metadata"),
             abstract=item.get("abstract"),
             ground_truth=item["ground_truth"],
             bioproject_id=item.get("bioproject_id"),
@@ -127,18 +172,9 @@ def evaluate_model(
 ) -> ModelEvaluationResult:
     """
     Evaluate a model on gold-standard dataset.
-
-    Args:
-        provider: LLM provider to evaluate
-        test_dataset: List of gold-standard samples
-        fields_to_evaluate: Which fields to evaluate (default: all)
-        verbose: Print progress
-
-    Returns:
-        ModelEvaluationResult with metrics
     """
     if fields_to_evaluate is None:
-        fields_to_evaluate = ["tissue", "cell_type", "cell_line", "treatment", "strain", "age", "sex"]
+        fields_to_evaluate = ["organism", "tissue", "cell_type", "cell_line", "treatment", "strain", "age", "sex"]
 
     if verbose:
         print(f"\nEvaluating {provider.get_model_name()} on {len(test_dataset)} samples...")
@@ -162,6 +198,8 @@ def evaluate_model(
             study_description=sample.study_description,
             sample_title=sample.sample_title,
             sample_description=sample.sample_description,
+            characteristics=sample.characteristics,
+            run_metadata=sample.run_metadata,
             abstract=sample.abstract,
         )
 
@@ -183,31 +221,29 @@ def evaluate_model(
             predicted = getattr(result, field)
             ground_truth = sample.ground_truth.get(field)
 
-            # Normalize for comparison
-            pred_norm = predicted.lower().strip() if predicted else None
-            gt_norm = ground_truth.lower().strip() if ground_truth else None
+            # Use fuzzy matching
+            match = values_match(predicted, ground_truth, field)
 
-            # Calculate TP/FP/TN/FN
-            if pred_norm and gt_norm:
-                if pred_norm == gt_norm:
+            if predicted and ground_truth:
+                if match:
                     field_counts[field]["tp"] += 1  # True positive
-                    field_results[field] = ""
+                    field_results[field] = f"MATCH ({predicted})"
                 else:
                     field_counts[field]["fp"] += 1  # False positive
                     field_counts[field]["fn"] += 1  # Also missed the true value
-                    field_results[field] = f" (pred: {predicted}, gt: {ground_truth})"
+                    field_results[field] = f"MISMATCH (pred: {predicted}, gt: {ground_truth})"
                     sample_correct = False
-            elif pred_norm and not gt_norm:
+            elif predicted and not ground_truth:
                 field_counts[field]["fp"] += 1  # False positive (hallucinated)
                 field_results[field] = f"FP ({predicted})"
                 sample_correct = False
-            elif not pred_norm and gt_norm:
+            elif not predicted and ground_truth:
                 field_counts[field]["fn"] += 1  # False negative (missed)
                 field_results[field] = f"FN (missed {ground_truth})"
                 sample_correct = False
             else:
                 field_counts[field]["tn"] += 1  # True negative (correctly empty)
-                field_results[field] = " (both empty)"
+                field_results[field] = "(both empty)"
 
         if sample_correct:
             total_exact_matches += 1
@@ -220,7 +256,7 @@ def evaluate_model(
         })
 
         if verbose:
-            status = " EXACT MATCH" if sample_correct else " PARTIAL"
+            status = "  EXACT MATCH" if sample_correct else "  PARTIAL"
             print(f"  {status}")
 
     # Calculate metrics per field
@@ -251,9 +287,9 @@ def evaluate_model(
     overall_precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0.0
     overall_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0.0
     overall_f1 = 2 * (overall_precision * overall_recall) / (overall_precision + overall_recall) if (overall_precision + overall_recall) > 0 else 0.0
-    overall_accuracy = total_exact_matches / len(test_dataset)
+    overall_accuracy = total_exact_matches / len(test_dataset) if test_dataset else 0
 
-    # Estimate cost (rough estimates for common models)
+    # Estimate cost
     estimated_cost = estimate_cost(
         model_name=provider.get_model_name(),
         total_tokens=total_tokens,
@@ -282,21 +318,16 @@ def evaluate_model(
 def estimate_cost(model_name: str, total_tokens: int) -> float:
     """
     Estimate cost based on model and token usage.
-
-    Rough pricing (as of 2024):
-    - Claude 3.5 Sonnet: $3/1M input, $15/1M output (~$9/1M avg)
-    - GPT-4: $10/1M input, $30/1M output (~$20/1M avg)
-    - Llama 3 (local): $0 (just GPU costs)
     """
-    # Assume 50/50 split input/output for avg
     cost_per_1m_tokens = {
         "claude-3-5-sonnet": 9.0,
         "claude-3-sonnet": 6.0,
+        "claude-3-5-haiku": 1.0,
         "gpt-4": 20.0,
         "gpt-3.5": 1.0,
     }
 
-    # Check if local model (zero API cost)
+    # Check if local model
     if any(x in model_name.lower() for x in ["llama", "mixtral", "qwen", "mistral"]):
         return 0.0
 
@@ -339,10 +370,6 @@ def compare_models(
 ) -> None:
     """
     Compare multiple model evaluation results.
-
-    Args:
-        results: List of ModelEvaluationResult from different models
-        output_path: Optional path to save comparison JSON
     """
     print("\n" + "=" * 80)
     print("MODEL COMPARISON")

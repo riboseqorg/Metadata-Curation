@@ -71,6 +71,7 @@ def extract_sample_with_field_mappings(
             confidence=1.0,
             extraction_method="structured_field",
         ) if biosample_meta.description else None,
+        raw_characteristics=biosample_meta.attributes,
     )
 
     # Use field_mappings to extract standardized fields

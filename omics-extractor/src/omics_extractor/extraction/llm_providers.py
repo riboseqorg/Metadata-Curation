@@ -21,6 +21,7 @@ import os
 class LLMExtractionResult:
     """Result from LLM extraction."""
 
+    organism: Optional[str] = None
     tissue: Optional[str] = None
     cell_type: Optional[str] = None
     cell_line: Optional[str] = None
@@ -109,7 +110,7 @@ class ClaudeProvider(LLMProvider):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = "claude-3-5-sonnet-latest",
     ):
         """
         Initialize Claude provider.
@@ -163,6 +164,7 @@ class ClaudeProvider(LLMProvider):
 
         # Build result
         result = LLMExtractionResult(
+            organism=data.get("organism"),
             tissue=data.get("tissue"),
             cell_type=data.get("cell_type"),
             cell_line=data.get("cell_line"),
@@ -294,6 +296,7 @@ class VLLMProvider(LLMProvider):
                     data = {}
 
             result = LLMExtractionResult(
+                organism=data.get("organism"),
                 tissue=data.get("tissue"),
                 cell_type=data.get("cell_type"),
                 cell_line=data.get("cell_line"),
@@ -397,6 +400,7 @@ class TransformersProvider(LLMProvider):
                 data = {}
 
         result = LLMExtractionResult(
+            organism=data.get("organism"),
             tissue=data.get("tissue"),
             cell_type=data.get("cell_type"),
             cell_line=data.get("cell_line"),

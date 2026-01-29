@@ -227,9 +227,16 @@ def _batch_enrich_with_provider(
 
             # Get study context
             study = data.get("study", {})
-            study_title = study.get("title", {}).get("value", "")
-            study_description = study.get("description", {}).get("value", "")
-            abstract = study.get("paper_abstract", {}).get("value")
+            # Handle traceable format (nested in core_metadata) or flat/simple format
+            study_title = study.get("quick_view", {}).get("title") or \
+                          study.get("core_metadata", {}).get("title", {}).get("value") or \
+                          study.get("title", {}).get("value", "")
+                          
+            study_description = study.get("core_metadata", {}).get("description", {}).get("value") or \
+                                study.get("description", {}).get("value", "")
+                                
+            abstract = study.get("publication", {}).get("abstract", {}).get("value") or \
+                       study.get("paper_abstract", {}).get("value")
 
             samples = data.get("samples", {})
             stats["total_samples"] += len(samples)
@@ -246,9 +253,12 @@ def _batch_enrich_with_provider(
                         bio_meta = sample_data.get("biological_metadata", {})
 
                         # Get bioproject_id with multiple fallbacks
-                        bioproject_id = quick_view.get("bioproject_id")
-                        if not bioproject_id:
-                            bioproject_id = study.get("bioproject_id") or study.get("bioproject", {}).get("value")
+                        bioproject_id = quick_view.get("bioproject_id") or \
+                                        sample_data.get("identifiers", {}).get("bioproject_id") or \
+                                        study.get("identifiers", {}).get("bioproject_id") or \
+                                        study.get("quick_view", {}).get("bioproject_id") or \
+                                        study.get("bioproject_id") or \
+                                        study.get("bioproject", {}).get("value")
                         if not bioproject_id:
                             import re
                             match = re.search(r'(PRJ[A-Z]+\d+)', str(input_path.name))
@@ -259,6 +269,7 @@ def _batch_enrich_with_provider(
                             "sample_id": quick_view.get("sample_id"),
                             "bioproject_id": bioproject_id,
                             "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
+                            "raw_characteristics": sample_data.get("raw_biosample_attributes"),
                         }
 
                         provenance_fields = [
@@ -435,9 +446,16 @@ def enrich_command(args):
 
         # Extract study context
         study = data.get("study", {})
-        study_title = study.get("title", {}).get("value", "")
-        study_description = study.get("description", {}).get("value", "")
-        abstract = study.get("paper_abstract", {}).get("value")
+        # Handle traceable format (nested in core_metadata) or flat/simple format
+        study_title = study.get("quick_view", {}).get("title") or \
+                      study.get("core_metadata", {}).get("title", {}).get("value") or \
+                      study.get("title", {}).get("value", "")
+                      
+        study_description = study.get("core_metadata", {}).get("description", {}).get("value") or \
+                            study.get("description", {}).get("value", "")
+                            
+        abstract = study.get("publication", {}).get("abstract", {}).get("value") or \
+                   study.get("paper_abstract", {}).get("value")
 
         # Get samples
         samples = data.get("samples", {})
@@ -452,11 +470,11 @@ def enrich_command(args):
         for sample_id, sample_data in samples.items():
             # Check if any priority fields are missing
             missing_fields = []
-            if not sample_data.get("tissue"):
+            if not sample_data.get("tissue") and not sample_data.get("biological_metadata", {}).get("tissue"):
                 missing_fields.append("tissue")
-            if not sample_data.get("cell_type"):
+            if not sample_data.get("cell_type") and not sample_data.get("biological_metadata", {}).get("cell_type"):
                 missing_fields.append("cell_type")
-            if not sample_data.get("cell_line"):
+            if not sample_data.get("cell_line") and not sample_data.get("biological_metadata", {}).get("cell_line"):
                 missing_fields.append("cell_line")
 
             if missing_fields:
@@ -486,13 +504,20 @@ def enrich_command(args):
             quick_view = sample_data.get("quick_view", {})
             bio_meta = sample_data.get("biological_metadata", {})
 
-            # Get bioproject_id from study if not in quick_view
-            bioproject_id = quick_view.get("bioproject_id") or study.get("bioproject_id") or study.get("bioproject", {}).get("value")
+            # Get bioproject_id with multiple fallbacks
+            bioproject_id = quick_view.get("bioproject_id") or \
+                            sample_data.get("identifiers", {}).get("bioproject_id") or \
+                            sample_data.get("bioproject_id") or \
+                            study.get("identifiers", {}).get("bioproject_id") or \
+                            study.get("quick_view", {}).get("bioproject_id") or \
+                            study.get("bioproject_id") or \
+                            study.get("bioproject", {}).get("value")
 
             flat_data = {
-                "sample_id": quick_view.get("sample_id"),
+                "sample_id": quick_view.get("sample_id") or sample_data.get("sample_id"),
                 "bioproject_id": bioproject_id,
                 "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
+                "raw_characteristics": sample_data.get("raw_biosample_attributes") or sample_data.get("raw_characteristics"),
             }
 
             # Extract all BaseProvenance fields (keep as dicts, ensure required fields)
@@ -511,8 +536,11 @@ def enrich_command(args):
             sample = SampleMetadata(**flat_data)
 
             # Get sample-specific context
-            sample_title = sample_data.get("sample_title", {}).get("value")
-            sample_description = sample_data.get("sample_description", {}).get("value")
+            sample_title = sample_data.get("sample_title", {}).get("value") or \
+                           sample_data.get("descriptions", {}).get("title", {}).get("value")
+            
+            sample_description = sample_data.get("sample_description", {}).get("value") or \
+                                 sample_data.get("descriptions", {}).get("description", {}).get("value")
 
             # Enrich with LLM
             try:

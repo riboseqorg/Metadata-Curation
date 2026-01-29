@@ -101,9 +101,16 @@ def extract_enriched_fields(file_path: Path, min_confidence: float = 0.0, max_co
                 sample_description = sample_data["sample_description"].get("value", "")
             bio_meta = sample_data
 
-        # Extract enriched fields
-        fields_to_check = ["tissue", "cell_type", "cell_line", "strain", "treatment",
-                          "disease", "developmental_stage", "age", "sex", "genotype"]
+        # Extract enriched fields (comprehensive list from SampleMetadata schema)
+        fields_to_check = [
+            # Core biological metadata
+            "organism", "tissue", "cell_type", "cell_line", "strain",
+            "developmental_stage", "genotype", "age", "sex",
+            # Experimental conditions
+            "condition", "treatment", "timepoint", "replicate", "batch",
+            # Disease/perturbation
+            "disease", "stress", "temperature", "growth_condition"
+        ]
 
         for field in fields_to_check:
             if field in bio_meta and isinstance(bio_meta[field], dict):

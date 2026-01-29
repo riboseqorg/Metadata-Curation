@@ -80,9 +80,16 @@ def analyze_enriched_file(file_path: Path, verbose: bool = False) -> StudyStats:
     samples = data.get("samples", {})
     num_samples = len(samples)
 
-    # Fields to track
-    fields = ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
-              "developmental_stage", "age", "sex", "genotype"]
+    # Fields to track (comprehensive list from SampleMetadata schema)
+    fields = [
+        # Core biological metadata
+        "organism", "tissue", "cell_type", "cell_line", "strain",
+        "developmental_stage", "genotype", "age", "sex",
+        # Experimental conditions
+        "condition", "treatment", "timepoint", "replicate", "batch",
+        # Disease/perturbation
+        "disease", "stress", "temperature", "growth_condition"
+    ]
 
     # Initialize field stats
     field_stats = {field: FieldStats(total_samples=num_samples) for field in fields}
@@ -187,8 +194,15 @@ def print_summary_report(all_stats: List[StudyStats]):
     print(f"\n{'Field':<20} {'Coverage Before':<18} {'Coverage After':<18} {'Enriched':<12} {'Avg Confidence':<15}")
     print("-" * 85)
 
-    fields = ["tissue", "cell_type", "cell_line", "strain", "treatment", "disease",
-              "developmental_stage", "age", "sex", "genotype"]
+    fields = [
+        # Core biological metadata
+        "organism", "tissue", "cell_type", "cell_line", "strain",
+        "developmental_stage", "genotype", "age", "sex",
+        # Experimental conditions
+        "condition", "treatment", "timepoint", "replicate", "batch",
+        # Disease/perturbation
+        "disease", "stress", "temperature", "growth_condition"
+    ]
 
     for field in fields:
         # Aggregate across all studies
