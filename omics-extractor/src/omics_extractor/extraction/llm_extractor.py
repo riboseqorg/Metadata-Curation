@@ -10,7 +10,31 @@ from ..schemas.base import BaseProvenance, SampleMetadata
 from ..ontologies.mapper import normalize_tissue, normalize_cell_type, normalize_organism
 
 
+from pathlib import Path
+import yaml
 from .llm_schemas import LLMExtractionResult
+
+
+def load_extraction_scheme(scheme_name: str) -> Dict[str, str]:
+    """Load an extraction scheme from a YAML file."""
+    # Schemes are located in the same directory as this file
+    schemes_dir = Path(__file__).parent / "schemes"
+    scheme_path = schemes_dir / f"{scheme_name}.yaml"
+    
+    if not scheme_path.exists():
+        # Fallback to default if scheme doesn't exist
+        scheme_path = schemes_dir / "default.yaml"
+        
+    if not scheme_path.exists():
+        # Last resort - return a minimal hardcoded scheme
+        return {
+            "organism": "Scientific name of the organism",
+            "tissue": "Tissue type",
+            "cell_type": "Cell type"
+        }
+        
+    with open(scheme_path, "r") as f:
+        return yaml.safe_load(f)
 
 
 def build_extraction_prompt(
@@ -21,7 +45,11 @@ def build_extraction_prompt(
     characteristics: Optional[Dict[str, str]] = None,
     run_metadata: Optional[Dict[str, Any]] = None,
     abstract: Optional[str] = None,
+    journal: Optional[str] = None,
+    authors: Optional[str] = None,
+    publication_date: Optional[str] = None,
     existing_metadata: Optional[Dict[str, Any]] = None,
+    fields: Optional[Dict[str, str]] = None,
 ) -> str:
     """
     Build a prompt for Claude to extract sample metadata.
@@ -46,8 +74,17 @@ Title: {study_title}
 
 Description:
 {study_description}
-
 """
+
+    if journal or authors or publication_date:
+        prompt += "PUBLICATION CONTEXT:\n"
+        if journal:
+            prompt += f"Journal: {journal}\n"
+        if authors:
+            prompt += f"Authors: {authors}\n"
+        if publication_date:
+            prompt += f"Date: {publication_date}\n"
+        prompt += "\n"
 
     if sample_title:
         prompt += f"""SAMPLE INFORMATION:
@@ -58,15 +95,12 @@ Title: {sample_title}
         prompt += f"""Description: {sample_description}
 """
 
-    if characteristics:
-        prompt += f"""Characteristics/Attributes:
-{json.dumps(characteristics, indent=2)}
-"""
-
-    if run_metadata:
-        prompt += f"""RUN INFORMATION (SRA):
-{json.dumps(run_metadata, indent=2)}
-"""
+    if characteristics or run_metadata:
+        prompt += "\nSOURCE METADATA (raw fields from NCBI/GEO):\n"
+        if characteristics:
+            prompt += f"Biosample Attributes:\n{json.dumps(characteristics, indent=2)}\n"
+        if run_metadata:
+            prompt += f"Technical Context (SRA):\n{json.dumps(run_metadata, indent=2)}\n"
 
     if abstract:
         prompt += f"""
@@ -80,36 +114,16 @@ ALREADY EXTRACTED (do not duplicate):
 {json.dumps(existing_metadata, indent=2)}
 """
 
-    prompt += """
+    # Use provided fields or default biosample attributes
+    if not fields:
+        fields = load_extraction_scheme("default")
+
+    prompt += f"""
 TASK:
 Extract the following sample-level metadata fields. Only extract information you are confident about.
 Return ONLY valid JSON with this structure:
 
-{
-  "organism": "scientific name or null",
-  "tissue": "tissue type or null",
-  "cell_type": "cell type or null",
-  "cell_line": "cell line name or null",
-  "developmental_stage": "developmental stage or null",
-  "strain": "strain/variety or null",
-  "genotype": "genotype/genetic background or null",
-  "sex": "male/female/mixed or null",
-  "age": "age or null",
-  "condition": "experimental condition or null",
-  "treatment": "treatment/drug applied or null",
-  "timepoint": "time point or null",
-  "replicate": "biological replicate or null",
-  "batch": "batch number or null",
-  "disease": "disease state or null",
-  "stress": "stress condition or null",
-  "temperature": "temperature or null",
-  "growth_condition": "growth conditions or null",
-  "confidence": {
-    "tissue": 0.0-1.0,
-    "cell_type": 0.0-1.0
-  },
-  "reasoning": "brief explanation of extraction"
-}
+{json.dumps(fields, indent=2)}
 
 CONFIDENCE SCORING GUIDELINES:
 - 1.0: Explicitly stated in structured field
@@ -127,6 +141,7 @@ IMPORTANT:
 
 Return only the JSON object, no other text.
 """
+    print(prompt)
     return prompt
 
 
@@ -136,10 +151,14 @@ def extract_with_claude(
     sample_title: Optional[str] = None,
     sample_description: Optional[str] = None,
     abstract: Optional[str] = None,
+    journal: Optional[str] = None,
+    authors: Optional[str] = None,
+    publication_date: Optional[str] = None,
     characteristics: Optional[Dict[str, str]] = None,
     run_metadata: Optional[Dict[str, Any]] = None,
     existing_metadata: Optional[Dict[str, Any]] = None,
     api_key: Optional[str] = None,
+    fields: Optional[Dict[str, str]] = None,
 ) -> LLMExtractionResult:
     """
     Extract metadata using Claude API.
@@ -175,7 +194,11 @@ def extract_with_claude(
         characteristics=characteristics,
         run_metadata=run_metadata,
         abstract=abstract,
+        journal=journal,
+        authors=authors,
+        publication_date=publication_date,
         existing_metadata=existing_metadata,
+        fields=fields,
     )
 
     message = client.messages.create(
@@ -208,9 +231,13 @@ def enrich_sample_metadata(
     sample_title: Optional[str] = None,
     sample_description: Optional[str] = None,
     abstract: Optional[str] = None,
+    journal: Optional[str] = None,
+    authors: Optional[str] = None,
+    publication_date: Optional[str] = None,
+    provider: Optional[Any] = None,
+    source_id: str = "llm",
     api_key: Optional[str] = None,
-    provider = None,  # LLMProvider instance
-    source_id: str = "llm_extraction",
+    scheme: str = "default",
 ) -> SampleMetadata:
     """
     Enrich existing sample metadata with LLM extraction.
@@ -259,6 +286,9 @@ def enrich_sample_metadata(
     if sample.raw_characteristics:
         existing["raw_characteristics"] = sample.raw_characteristics
 
+    # Load extraction scheme
+    fields = load_extraction_scheme(scheme)
+
     # Extract with LLM (provider or Claude)
     if provider is not None:
         # Use generic provider interface (returns LLMExtractionResult directly)
@@ -268,14 +298,15 @@ def enrich_sample_metadata(
             sample_title=sample_title,
             sample_description=sample_description,
             characteristics=sample.raw_characteristics,
-            run_metadata=getattr(sample, 'run_metadata', None), # May not be in SampleMetadata object yet
+            run_metadata=sample.technical_context,
             abstract=abstract,
+            journal=journal,
+            authors=authors,
+            publication_date=publication_date,
             existing_metadata=existing,
+            fields=fields,
         )
-        print(prompt)
         llm_result = provider.extract(prompt)
-        print(llm_result)
-        print("\n")
     else:
         # Use Claude directly (backward compatibility)
         llm_result = extract_with_claude(
@@ -284,16 +315,21 @@ def enrich_sample_metadata(
             sample_title=sample_title,
             sample_description=sample_description,
             characteristics=sample.raw_characteristics,
-            run_metadata=getattr(sample, 'run_metadata', None),
+            run_metadata=sample.technical_context,
             abstract=abstract,
+            journal=journal,
+            authors=authors,
+            publication_date=publication_date,
             existing_metadata=existing,
             api_key=api_key,
+            fields=fields,
         )
-    print(llm_result)
 
     # Field confidence for LLM extraction (source field is study description/abstract)
     # This is lower because we're inferring from high-level descriptions
     llm_field_confidence = 0.5
+
+    print(llm_result)
 
     # Apply ontology mapping to LLM-extracted values
     ontology_mappings = {}
@@ -313,264 +349,49 @@ def enrich_sample_metadata(
         llm_result.cell_type = normalized_cell  # Use normalized value
 
     # Add extracted fields that are missing
-    if llm_result.organism and not sample.organism:
-        norm_conf = llm_result.confidence.get("organism", 0.5)
-        ontology_term = ontology_mappings.get("organism", (None, None, None))[1]
-        sample.organism = BaseProvenance(
-            value=llm_result.organism,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-            ontology_term=ontology_term,
-        )
+    # Fields to map from LLM result to sample
+    mapping_fields = [
+        "organism", "tissue", "cell_type", "cell_line", "strain", "genotype",
+        "sex", "age", "developmental_stage", "condition", "treatment",
+        "timepoint", "replicate", "batch", "disease", "stress",
+        "temperature", "growth_condition", "library_strategy"
+    ]
 
-    if llm_result.tissue and not sample.tissue:
-        norm_conf = llm_result.confidence.get("tissue", 0.5)
-        ontology_term = ontology_mappings.get("tissue", (None, None, None))[1]  # Get ontology ID
-        sample.tissue = BaseProvenance(
-            value=llm_result.tissue,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-            ontology_term=ontology_term,
-        )
+    for field in mapping_fields:
+        llm_val = getattr(llm_result, field, None)
+        existing_prov = getattr(sample, field, None)
+        
+        # Only enrich if sample doesn't have it or if it's empty
+        if llm_val and (not existing_prov or not existing_prov.value):
+            norm_conf = llm_result.confidence.get(field, 0.5)
+            ontology_term = ontology_mappings.get(field, (None, None, None))[1]
+            
+            setattr(sample, field, BaseProvenance(
+                value=llm_val,
+                source="llm_enrichment",
+                source_id=source_id,
+                confidence=llm_field_confidence * norm_conf,
+                field_confidence=llm_field_confidence,
+                normalization_confidence=norm_conf,
+                extraction_method="llm",
+                extracted_text="Inferred from study context",
+                notes=llm_result.reasoning,
+                ontology_term=ontology_term,
+            ))
 
-    if llm_result.cell_type and not sample.cell_type:
-        norm_conf = llm_result.confidence.get("cell_type", 0.5)
-        ontology_term = ontology_mappings.get("cell_type", (None, None, None))[1]  # Get ontology ID
-        sample.cell_type = BaseProvenance(
-            value=llm_result.cell_type,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-            ontology_term=ontology_term,
-        )
-
-    if llm_result.cell_line and not sample.cell_line:
-        norm_conf = llm_result.confidence.get("cell_line", 0.5)
-        sample.cell_line = BaseProvenance(
-            value=llm_result.cell_line,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.treatment and not sample.treatment:
-        norm_conf = llm_result.confidence.get("treatment", 0.5)
-        sample.treatment = BaseProvenance(
-            value=llm_result.treatment,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.genotype and not sample.genotype:
-        norm_conf = llm_result.confidence.get("genotype", 0.5)
-        sample.genotype = BaseProvenance(
-            value=llm_result.genotype,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.strain and not sample.strain:
-        norm_conf = llm_result.confidence.get("strain", 0.5)
-        sample.strain = BaseProvenance(
-            value=llm_result.strain,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.age and not sample.age:
-        norm_conf = llm_result.confidence.get("age", 0.5)
-        sample.age = BaseProvenance(
-            value=llm_result.age,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.sex and not sample.sex:
-        norm_conf = llm_result.confidence.get("sex", 0.5)
-        sample.sex = BaseProvenance(
-            value=llm_result.sex,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.developmental_stage and not sample.developmental_stage:
-        norm_conf = llm_result.confidence.get("developmental_stage", 0.5)
-        sample.developmental_stage = BaseProvenance(
-            value=llm_result.developmental_stage,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    # Experimental conditions
-    if llm_result.condition and not sample.condition:
-        norm_conf = llm_result.confidence.get("condition", 0.5)
-        sample.condition = BaseProvenance(
-            value=llm_result.condition,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.timepoint and not sample.timepoint:
-        norm_conf = llm_result.confidence.get("timepoint", 0.5)
-        sample.timepoint = BaseProvenance(
-            value=llm_result.timepoint,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.replicate and not sample.replicate:
-        norm_conf = llm_result.confidence.get("replicate", 0.5)
-        sample.replicate = BaseProvenance(
-            value=llm_result.replicate,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.batch and not sample.batch:
-        norm_conf = llm_result.confidence.get("batch", 0.5)
-        sample.batch = BaseProvenance(
-            value=llm_result.batch,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    # Disease/perturbation
-    if llm_result.disease and not sample.disease:
-        norm_conf = llm_result.confidence.get("disease", 0.5)
-        sample.disease = BaseProvenance(
-            value=llm_result.disease,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.stress and not sample.stress:
-        norm_conf = llm_result.confidence.get("stress", 0.5)
-        sample.stress = BaseProvenance(
-            value=llm_result.stress,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.temperature and not sample.temperature:
-        norm_conf = llm_result.confidence.get("temperature", 0.5)
-        sample.temperature = BaseProvenance(
-            value=llm_result.temperature,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
-
-    if llm_result.growth_condition and not sample.growth_condition:
-        norm_conf = llm_result.confidence.get("growth_condition", 0.5)
-        sample.growth_condition = BaseProvenance(
-            value=llm_result.growth_condition,
-            source="llm_enrichment",
-            source_id=source_id,
-            confidence=llm_field_confidence * norm_conf,
-            field_confidence=llm_field_confidence,
-            normalization_confidence=norm_conf,
-            extraction_method="llm",
-            extracted_text=f"Inferred from study context",
-            notes=llm_result.reasoning,
-        )
+    # Add any extra fields from LLM result to custom_fields
+    if not sample.custom_fields:
+        sample.custom_fields = {}
+    
+    # Get all fields defined in the scheme that were extracted but aren't in mapping_fields
+    scheme_fields = set(fields.keys())
+    standard_fields = set(mapping_fields)
+    extra_fields = scheme_fields - standard_fields
+    
+    for field in extra_fields:
+        llm_val = getattr(llm_result, field, None)
+        if llm_val and field not in sample.custom_fields:
+            sample.custom_fields[field] = llm_val
 
     return sample
+

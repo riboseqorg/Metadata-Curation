@@ -456,6 +456,7 @@ def build_run_metadata(run_id: str) -> RunMetadata:
         "sample_id": sra_meta.sample_id,
         "bioproject_id": sra_meta.bioproject_id,
         "experiment_id": sra_meta.experiment_id,
+        "experiment_title": sra_meta.experiment_title,
         "biosample_id": sra_meta.biosample_id,
         "organism": sra_meta.organism,
         "library_strategy": BaseProvenance(
@@ -532,6 +533,18 @@ def build_project_metadata(bioproject_id: str) -> Dict:
                 biosample_id=run_meta.biosample_id,
                 organism_from_sra=run_meta.organism,
             )
+            # Add technical context for LLM extraction
+            sample_meta.technical_context = {
+                "experiment_title": run_meta.experiment_title,
+                "library_name": run_meta.library_name,
+                "library_selection": run_meta.library_selection,
+                "library_source": run_meta.library_source,
+                "library_layout": run_meta.library_layout,
+                "platform": run_meta.platform,
+                "instrument_model": run_meta.instrument_model,
+                "read_count": run_meta.read_count,
+                "run_date": run_meta.run_date,
+            }
             samples_dict[sample_id] = sample_meta
 
     print(f"Complete! Study: 1, Samples: {len(samples_dict)}, Runs: {len(runs_list)}")

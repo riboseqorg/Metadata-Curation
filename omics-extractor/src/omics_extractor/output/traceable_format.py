@@ -130,7 +130,7 @@ def format_sample_traceable(sample: SampleMetadata, include_raw: bool = True) ->
 
     for field in ["tissue", "cell_line", "cell_type", "strain", "genotype", "sex", "age",
                   "developmental_stage", "treatment", "condition", "disease", "timepoint",
-                  "replicate", "batch", "stress", "temperature", "growth_condition"]:
+                  "replicate", "batch", "stress", "temperature", "growth_condition", "library_strategy"]:
         attr = getattr(sample, field, None)
         if attr and isinstance(attr, BaseProvenance):
             quick_view[field] = attr.value
@@ -166,6 +166,10 @@ def format_sample_traceable(sample: SampleMetadata, include_raw: bool = True) ->
     if experimental:
         output["experimental_metadata"] = experimental
 
+    # Technical metadata
+    if sample.library_strategy:
+        output["library_strategy"] = format_field_traceable(sample.library_strategy)
+
     # Disease/perturbation metadata
     disease_perturbation = {}
     for field in ["disease", "stress", "temperature", "growth_condition"]:
@@ -187,6 +191,10 @@ def format_sample_traceable(sample: SampleMetadata, include_raw: bool = True) ->
     # Raw characteristics (original data from BioSample/GEO before processing)
     if include_raw and sample.raw_characteristics:
         output["raw_biosample_attributes"] = sample.raw_characteristics
+
+    # Technical context for LLM
+    if sample.technical_context:
+        output["technical_context"] = sample.technical_context
 
     # Custom fields
     if sample.custom_fields:
@@ -328,7 +336,7 @@ def _compute_traceable_statistics(
         "organism", "tissue", "cell_line", "cell_type", "strain", "genotype", 
         "sex", "age", "developmental_stage", "condition", "treatment", 
         "timepoint", "replicate", "batch", "disease", "stress", 
-        "temperature", "growth_condition"
+        "temperature", "growth_condition", "library_strategy"
     ]
 
     for field in critical_fields:

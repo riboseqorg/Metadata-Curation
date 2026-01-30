@@ -72,8 +72,12 @@ class BatchEnricher:
         study_title: str,
         study_description: str,
         abstract: Optional[str] = None,
+        journal: Optional[str] = None,
+        authors: Optional[str] = None,
+        publication_date: Optional[str] = None,
         checkpoint_file: Optional[Path] = None,
         resume: bool = False,
+        scheme: str = "default",
     ) -> Tuple[Dict[str, SampleMetadata], Dict]:
         """
         Enrich multiple samples with LLM.
@@ -141,6 +145,9 @@ class BatchEnricher:
                     sample_title,
                     sample_desc,
                     abstract,
+                    journal,
+                    authors,
+                    publication_date,
                 )
                 futures[future] = sample_id
 
@@ -185,6 +192,10 @@ class BatchEnricher:
         sample_title: Optional[str],
         sample_description: Optional[str],
         abstract: Optional[str],
+        journal: Optional[str] = None,
+        authors: Optional[str] = None,
+        publication_date: Optional[str] = None,
+        scheme: str = "default",
     ) -> Tuple[SampleMetadata, SampleMetadata, List[str]]:
         """
         Enrich a single sample.
@@ -199,8 +210,12 @@ class BatchEnricher:
             sample_title=sample_title,
             sample_description=sample_description,
             abstract=abstract,
+            journal=journal,
+            authors=authors,
+            publication_date=publication_date,
             api_key=self.api_key,
             source_id=f"llm_batch_{sample_id}",
+            scheme=scheme,
         )
 
         # Determine what was added
@@ -283,6 +298,11 @@ def enrich_batch_from_files(
             study_title = study.get("title", {}).get("value", "")
             study_description = study.get("description", {}).get("value", "")
             abstract = study.get("abstract", {}).get("value")
+            journal = study.get("journal", {}).get("value")
+            authors = study.get("authors")
+            if isinstance(authors, list):
+                authors = ", ".join(authors)
+            pub_date = study.get("publication_date")
 
             # Reconstruct samples
             samples = {}
@@ -298,6 +318,9 @@ def enrich_batch_from_files(
                 study_title=study_title,
                 study_description=study_description,
                 abstract=abstract,
+                journal=journal,
+                authors=authors,
+                publication_date=pub_date,
                 checkpoint_file=checkpoint_file,
                 resume=resume,
             )

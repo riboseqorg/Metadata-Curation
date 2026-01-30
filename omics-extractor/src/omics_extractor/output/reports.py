@@ -25,22 +25,29 @@ def extract_field_value(field_obj: Any) -> tuple[Optional[str], Optional[str], O
         return None, None, None, None
 
     if isinstance(field_obj, dict):
+        # Recursive extraction in case of nested values or Pydantic-to-dict artifacts
         value = field_obj.get("value")
+        if isinstance(value, dict) and "value" in value:
+            # Handle rare double-nesting or complex provenance
+            value = value.get("value")
+            
         # Handle traceable format (nested provenance) or flat format
         prov = field_obj.get("provenance", {}) if "provenance" in field_obj else field_obj
         source = prov.get("source", "")
         confidence = prov.get("confidence")
         ontology = prov.get("ontology_term")
-        return value, source, confidence, ontology
+        return str(value) if value is not None else None, source, confidence, ontology
     else:
         # Simple string value
-        return str(field_obj), None, None, None
+        return str(field_obj) if field_obj is not None else None, None, None, None
 
 
-def process_sample_to_row(sample_data: dict, study_id: str) -> Dict[str, Any]:
+def process_sample_to_row(sample_data: dict, study_id: str, library_strategies: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     """Process a single sample and extract all fields into a flat row."""
     row = {}
     row["study_id"] = study_id
+    
+    sample_id = None
 
     # Detect format
     is_traceable = "biological_metadata" in sample_data
@@ -59,8 +66,20 @@ def process_sample_to_row(sample_data: dict, study_id: str) -> Dict[str, Any]:
         experimental = sample_data.get("experimental_metadata", {})
         disease_info = sample_data.get("disease_perturbation", {})
 
-        row["sample_id"] = quick_view.get("sample_id")
+        sample_id = quick_view.get("sample_id")
+        row["sample_id"] = sample_id
         row["bioproject_id"] = quick_view.get("bioproject_id")
+        # Include library strategy if provided
+        sra_strategy = library_strategies.get(sample_id) if library_strategies else None
+        inferred_strategy = quick_view.get("library_strategy")
+        
+        # Prioritize inferred if SRA is unhelpful or missing
+        if inferred_strategy and (not sra_strategy or str(sra_strategy).lower() in ["other", "unknown", "rna-seq"]):
+             row["library_strategy"] = inferred_strategy
+        elif sra_strategy:
+            row["library_strategy"] = sra_strategy
+        else:
+            row["library_strategy"] = "unknown"
 
         for field in fields_to_extract:
             # Look in all traceable categories
@@ -78,8 +97,24 @@ def process_sample_to_row(sample_data: dict, study_id: str) -> Dict[str, Any]:
 
     else:
         # Flat format
-        row["sample_id"] = sample_data.get("sample_id")
+        sample_id = sample_data.get("sample_id")
+        row["sample_id"] = sample_id
         row["bioproject_id"] = sample_data.get("bioproject_id")
+        
+        # Include library strategy if provided
+        sra_strategy = library_strategies.get(sample_id) if library_strategies else None
+        
+        # In flat format, it might be a direct field or nested
+        ls_obj = sample_data.get("library_strategy")
+        inferred_strategy, _, _, _ = extract_field_value(ls_obj)
+        
+        # Prioritize inferred if SRA is unhelpful or missing
+        if inferred_strategy and (not sra_strategy or str(sra_strategy).lower() in ["other", "unknown", "rna-seq"]):
+             row["library_strategy"] = inferred_strategy
+        elif sra_strategy:
+            row["library_strategy"] = sra_strategy
+        else:
+            row["library_strategy"] = "unknown"
 
         for field in fields_to_extract:
             if field in sample_data:
@@ -110,9 +145,27 @@ def generate_tabular_report(input_files: List[Path], output_path: Path, format_t
             
         study_id = file_path.stem.replace("_enriched", "").replace("_metadata", "")
         samples = data.get("samples", {})
+        runs = data.get("runs", [])
         
+        # Build map of sample_id -> library_strategy
+        library_map = {}
+        for run in runs:
+            s_id = run.get("sample_id")
+            strategy = run.get("library_strategy")
+            if s_id and strategy:
+                # If strategy is a dict (BaseProvenance), extract value
+                if isinstance(strategy, dict):
+                    strategy = strategy.get("value", "unknown")
+                
+                # If we have multiple runs, prioritize Ribo-seq then RNA-Seq
+                current = library_map.get(s_id, "")
+                if "ribo" in str(strategy).lower():
+                    library_map[s_id] = str(strategy)
+                elif not current or "rna" in str(strategy).lower():
+                    library_map[s_id] = str(strategy)
+
         for sample_id, sample_data in samples.items():
-            all_rows.append(process_sample_to_row(sample_data, study_id))
+            all_rows.append(process_sample_to_row(sample_data, study_id, library_map))
 
     if not all_rows:
         return False
@@ -123,7 +176,7 @@ def generate_tabular_report(input_files: List[Path], output_path: Path, format_t
         all_columns.update(row.keys())
 
     ordered_columns = []
-    for col in ["study_id", "bioproject_id", "sample_id"]:
+    for col in ["study_id", "bioproject_id", "sample_id", "library_strategy"]:
         if col in all_columns:
             ordered_columns.append(col)
             all_columns.remove(col)

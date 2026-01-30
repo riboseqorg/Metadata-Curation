@@ -242,6 +242,15 @@ def _batch_enrich_with_provider(
                                 
             abstract = study.get("publication", {}).get("abstract", {}).get("value") or \
                        study.get("paper_abstract", {}).get("value")
+            
+            journal = study.get("publication", {}).get("journal", {}).get("value") or \
+                      study.get("journal", {}).get("value")
+            authors = study.get("publication", {}).get("authors") or \
+                      study.get("authors")
+            if isinstance(authors, list):
+                authors = ", ".join(authors)
+            pub_date = study.get("publication", {}).get("publication_date") or \
+                       study.get("publication_date")
 
             samples = data.get("samples", {})
             stats["total_samples"] += len(samples)
@@ -275,6 +284,7 @@ def _batch_enrich_with_provider(
                             "bioproject_id": bioproject_id,
                             "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
                             "raw_characteristics": sample_data.get("raw_biosample_attributes"),
+                            "technical_context": sample_data.get("technical_context"),
                         }
 
                         provenance_fields = [
@@ -318,6 +328,9 @@ def _batch_enrich_with_provider(
                         study_title=study_title,
                         study_description=study_description,
                         abstract=abstract,
+                        journal=journal,
+                        authors=authors,
+                        publication_date=pub_date,
                         sample_title=sample_title,
                         sample_description=sample_description,
                         provider=provider,
@@ -466,6 +479,15 @@ def enrich_command(args):
                             
         abstract = study.get("publication", {}).get("abstract", {}).get("value") or \
                    study.get("paper_abstract", {}).get("value")
+        
+        journal = study.get("publication", {}).get("journal", {}).get("value") or \
+                  study.get("journal", {}).get("value")
+        authors = study.get("publication", {}).get("authors") or \
+                  study.get("authors")
+        if isinstance(authors, list):
+            authors = ", ".join(authors)
+        pub_date = study.get("publication", {}).get("publication_date") or \
+                   study.get("publication_date")
 
         # Get samples
         samples = data.get("samples", {})
@@ -526,6 +548,7 @@ def enrich_command(args):
                 "bioproject_id": bioproject_id,
                 "organism": _ensure_base_provenance(bio_meta.get("organism", {})),
                 "raw_characteristics": sample_data.get("raw_biosample_attributes") or sample_data.get("raw_characteristics"),
+                "technical_context": sample_data.get("technical_context"),
             }
 
             # Extract all BaseProvenance fields (keep as dicts, ensure required fields)
@@ -559,8 +582,12 @@ def enrich_command(args):
                     sample_title=sample_title,
                     sample_description=sample_description,
                     abstract=abstract,
+                    journal=journal,
+                    authors=authors,
+                    publication_date=pub_date,
                     provider=provider,
                     source_id=f"llm_enrichment_{sample_id}",
+                    scheme=args.scheme,
                 )
 
                 # Update traceable format with enriched values
@@ -568,7 +595,7 @@ def enrich_command(args):
                     "tissue", "cell_type", "cell_line", "strain", "genotype", 
                     "sex", "age", "developmental_stage", "condition", "treatment", 
                     "timepoint", "replicate", "batch", "disease", "stress", 
-                    "temperature", "growth_condition"
+                    "temperature", "growth_condition", "library_strategy"
                 ]
                 for field in all_fields:
                     new_field = getattr(enriched_sample, field, None)
@@ -577,24 +604,27 @@ def enrich_command(args):
                     if is_traceable:
                         old_val = bio_meta.get(field, {}).get("value")
                         # new_field is a BaseProvenance object, extract .value
-                        if new_field and new_field.value and not old_val:
+                        # Use getattr safely in case of unexpected types
+                        new_val = getattr(new_field, "value", None)
+                        if new_field and new_val and not old_val:
                             if field not in bio_meta:
                                 bio_meta[field] = {}
-                            bio_meta[field]["value"] = new_field.value
-                            bio_meta[field]["source"] = new_field.source
-                            bio_meta[field]["confidence"] = new_field.confidence
-                            quick_view[field] = new_field.value
+                            bio_meta[field]["value"] = new_val
+                            bio_meta[field]["source"] = getattr(new_field, "source", "llm_enrichment")
+                            bio_meta[field]["confidence"] = getattr(new_field, "confidence", 0.5)
+                            quick_view[field] = new_val
                             fields_added.setdefault(field, 0)
                             fields_added[field] += 1
                     else:
                         # Flat format (direct sample_data)
                         old_val = sample_data.get(field, {}).get("value") if isinstance(sample_data.get(field), dict) else sample_data.get(field)
-                        if new_field and new_field.value and not old_val:
+                        new_val = getattr(new_field, "value", None)
+                        if new_field and new_val and not old_val:
                             sample_data[field] = {
-                                "value": new_field.value,
-                                "source": new_field.source,
-                                "source_id": new_field.source_id,
-                                "confidence": new_field.confidence
+                                "value": new_val,
+                                "source": getattr(new_field, "source", "llm_enrichment"),
+                                "source_id": getattr(new_field, "source_id", "llm"),
+                                "confidence": getattr(new_field, "confidence", 0.5)
                             }
                             fields_added.setdefault(field, 0)
                             fields_added[field] += 1
@@ -843,6 +873,11 @@ Examples:
         action="store_true",
         help="Only enrich samples with missing critical fields",
     )
+    enrich_parser.add_argument(
+        "--scheme",
+        default="default",
+        help="Extraction scheme to use (default, nanopore_rna, ribo_seq, or custom YAML name)"
+    )
     enrich_parser.set_defaults(func=enrich_command)
 
     # Batch enrich command (Phase 2 - optimized for GPU clusters)
@@ -871,6 +906,11 @@ Examples:
     )
     batch_parser.add_argument(
         "--resume", action="store_true", help="Resume from checkpoints"
+    )
+    batch_parser.add_argument(
+        "--scheme",
+        default="default",
+        help="Extraction scheme to use (default, nanopore_rna, ribo_seq, or custom YAML name)"
     )
     batch_parser.set_defaults(func=batch_enrich_command)
 

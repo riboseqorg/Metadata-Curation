@@ -142,9 +142,13 @@ class SampleMetadata(BaseModel):
     # Sample description
     sample_title: Optional[BaseProvenance] = Field(None, description="Sample title")
     sample_description: Optional[BaseProvenance] = Field(None, description="Sample description")
+    library_strategy: Optional[BaseProvenance] = Field(None, description="Inferred library strategy (e.g. Ribo-Seq)")
 
     # Raw characteristics from GEO (before parsing into structured fields)
     raw_characteristics: Optional[Dict[str, str]] = Field(None, description="Unparsed GEO characteristics")
+
+    # Technical context from SRA/GEO (selection, platform, etc.)
+    technical_context: Optional[Dict[str, Any]] = Field(None, description="Technical SRA/GEO metadata for LLM context")
 
     # Custom fields
     custom_fields: Optional[Dict[str, Any]] = Field(None, description="Additional custom metadata")
@@ -163,6 +167,7 @@ class RunMetadata(BaseModel):
     sample_id: str = Field(description="Parent sample")
     bioproject_id: str = Field(description="Parent BioProject")
     experiment_id: str = Field(description="Experiment accession (SRX/ERX/DRX)")
+    experiment_title: Optional[str] = Field(None, description="Experiment title")
     biosample_id: Optional[str] = Field(None, description="BioSample accession (SAMN/SAMEA/SAMD)")
     organism: Optional[str] = Field(None, description="Organism name")
 

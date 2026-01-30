@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class LLMExtractionResult(BaseModel):
     """Result from LLM extraction."""
+    model_config = {"extra": "allow"}
 
     # Core biological metadata
     organism: Optional[str] = Field(None, description="Scientific name of the organism")
@@ -29,6 +30,9 @@ class LLMExtractionResult(BaseModel):
     stress: Optional[str] = Field(None, description="Stress condition")
     temperature: Optional[str] = Field(None, description="Temperature")
     growth_condition: Optional[str] = Field(None, description="Growth conditions")
+
+    # Technical metadata (inferred)
+    library_strategy: Optional[str] = Field(None, description="Inferred library strategy (e.g. Ribo-Seq, RNA-Seq, tRNA-Seq)")
 
     # Confidence and reasoning
     confidence: Dict[str, float] = Field(default_factory=dict, description="Confidence per field")
