@@ -19,6 +19,11 @@ from .output.formatters import (
     create_provenance_summary,
 )
 from .output.traceable_format import create_traceable_report
+from .output.reports import (
+    generate_tabular_report,
+    generate_summary_report,
+    perform_quality_review,
+)
 import yaml
 
 
@@ -713,6 +718,43 @@ def batch_enrich_command(args):
         sys.exit(1)
 
 
+def report_command(args):
+    """Generate reports from enriched metadata files."""
+    # Find all input files (handle glob manually if shell didn't expand)
+    import glob
+    all_inputs = []
+    for pattern in args.inputs:
+        files = glob.glob(str(pattern))
+        if not files:
+            # If no glob match, check if it's a direct path
+            p = Path(pattern)
+            if p.exists():
+                all_inputs.append(p)
+        else:
+            all_inputs.extend([Path(f) for f in files])
+
+    if not all_inputs:
+        print(f"✗ Error: No input files found matching patterns: {args.inputs}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Generating {args.format} report from {len(all_inputs)} files...")
+
+    if args.format == "table":
+        output_path = Path(args.output) if args.output else Path("metadata_summary.tsv")
+        success = generate_tabular_report(all_inputs, output_path, format_type=args.table_format)
+        if success:
+            print(f"✓ Tabular report saved to {output_path}")
+        else:
+            print("✗ Error: Failed to generate tabular report", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.format == "summary":
+        generate_summary_report(all_inputs)
+
+    elif args.format == "review":
+        perform_quality_review(all_inputs, num_to_review=args.num_samples)
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -836,6 +878,33 @@ Examples:
     validate_parser = subparsers.add_parser("validate", help="Validate extracted metadata")
     validate_parser.add_argument("input", help="Input JSON file to validate")
     validate_parser.set_defaults(func=validate_command)
+
+    # Report command (New in Phase 4)
+    report_parser = subparsers.add_parser("report", help="Generate reports from enriched metadata")
+    report_parser.add_argument("inputs", nargs="+", help="Input enriched JSON files or glob patterns")
+    report_parser.add_argument(
+        "--format",
+        choices=["table", "summary", "review"],
+        default="summary",
+        help="Report type: table (TSV/CSV), summary (stats), or review (quality check)"
+    )
+    report_parser.add_argument(
+        "--output", "-o", help="Output file path (for 'table' format)"
+    )
+    report_parser.add_argument(
+        "--table-format",
+        choices=["tsv", "csv"],
+        default="tsv",
+        help="Format for tabular report (default: tsv)"
+    )
+    report_parser.add_argument(
+        "--num-samples",
+        "-n",
+        type=int,
+        default=10,
+        help="Number of samples to show in 'review' mode (default: 10)"
+    )
+    report_parser.set_defaults(func=report_command)
 
     # Parse and execute
     args = parser.parse_args()

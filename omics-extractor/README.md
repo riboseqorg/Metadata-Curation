@@ -31,12 +31,17 @@ source .venv/bin/activate
 omics-extract extract PRJNA1170270
 
 # Phase 2: Enrich with LLM (fill gaps)
-# Using local Mistral model:
 omics-extract enrich PRJNA1170270_metadata.json --model mistral-7b
 
-# Using Claude API:
-export ANTHROPIC_API_KEY="your-key"
-omics-extract enrich PRJNA1170270_metadata.json
+# Phase 3: Generate Reports
+# Create a summary of metadata improvement
+omics-extract report "*_enriched.json" --format summary
+
+# Export to a unified TSV table for analysis
+omics-extract report "*_enriched.json" --format table -o final_metadata.tsv
+
+# Review specific extractions against source text
+omics-extract report "*_enriched.json" --format review -n 5
 ```
 
 ### Batch Processing
