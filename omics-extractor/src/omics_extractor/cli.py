@@ -456,6 +456,12 @@ def enrich_command(args):
             # Local model mode
             config_path = Path(args.config) if args.config else Path("config/model_paths.yaml")
             provider = load_provider_from_config(args.model, config_path)
+        elif getattr(args, "gemini_project", None) or (getattr(args, "gemini", False) and os.environ.get("GOOGLE_CLOUD_PROJECT")):
+            # Gemini via Vertex AI
+            gemini_project = getattr(args, "gemini_project", None) or os.environ.get("GOOGLE_CLOUD_PROJECT")
+            gemini_location = getattr(args, "gemini_location", None) or os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+            gemini_model = getattr(args, "gemini_model", None) or "gemini-2.5-flash"
+            provider = create_provider("gemini", project=gemini_project, location=gemini_location, model=gemini_model)
         else:
             # Claude API mode (default)
             api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -676,6 +682,12 @@ def batch_enrich_command(args):
             # Local model mode
             config_path = Path(args.config) if args.config else Path("config/model_paths.yaml")
             provider = load_provider_from_config(args.model, config_path)
+        elif getattr(args, "gemini_project", None) or (getattr(args, "gemini", False) and os.environ.get("GOOGLE_CLOUD_PROJECT")):
+            # Gemini via Vertex AI
+            gemini_project = getattr(args, "gemini_project", None) or os.environ.get("GOOGLE_CLOUD_PROJECT")
+            gemini_location = getattr(args, "gemini_location", None) or os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+            gemini_model = getattr(args, "gemini_model", None) or "gemini-2.5-flash"
+            provider = create_provider("gemini", project=gemini_project, location=gemini_location, model=gemini_model)
         else:
             # Claude API mode (default)
             api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -710,9 +722,9 @@ def batch_enrich_command(args):
         print(f"Processing {len(input_files)} files...")
         print(f"Output directory: {output_dir}")
 
-        if args.model:
-            # Local model mode - process sequentially with loaded model
-            print(f"Using local model (sequential processing)")
+        if args.model or getattr(args, "gemini_project", None) or (getattr(args, "gemini", False) and os.environ.get("GOOGLE_CLOUD_PROJECT")):
+            # Local model or Gemini mode - process sequentially with loaded provider
+            print(f"Using {provider.get_model_name()} (sequential processing)")
             stats = _batch_enrich_with_provider(
                 input_files=input_files,
                 output_dir=output_dir,
@@ -801,8 +813,17 @@ Examples:
   # Enrich with Claude API
   omics-extract enrich PRJNA1170270_metadata.json
 
+  # Enrich with Gemini via Vertex AI
+  omics-extract enrich PRJNA1170270_metadata.json --gemini-project my-gcp-project --gemini-location europe-west2
+
+  # Enrich with Gemini (project from env var)
+  omics-extract enrich PRJNA1170270_metadata.json --gemini
+
   # Batch enrich multiple projects with local model
   omics-extract batch-enrich *_metadata.json --output-dir enriched/ --model mistral-7b
+
+  # Batch enrich with Gemini
+  omics-extract batch-enrich *_metadata.json --output-dir enriched/ --gemini-project my-gcp-project
 
   # Batch enrich with Claude API (GPU cluster)
   omics-extract batch-enrich *_metadata.json --output-dir enriched/ --workers 8
@@ -869,6 +890,18 @@ Examples:
         "--claude-model", help="Claude model name (default: claude-sonnet-4-5-20250929)"
     )
     enrich_parser.add_argument(
+        "--gemini", action="store_true", help="Use Gemini via Vertex AI (reads project from GOOGLE_CLOUD_PROJECT env)"
+    )
+    enrich_parser.add_argument(
+        "--gemini-project", help="Google Cloud project ID for Vertex AI (or set GOOGLE_CLOUD_PROJECT)"
+    )
+    enrich_parser.add_argument(
+        "--gemini-location", default="us-central1", help="GCP region for Vertex AI (default: us-central1)"
+    )
+    enrich_parser.add_argument(
+        "--gemini-model", default="gemini-2.5-flash", help="Gemini model name (default: gemini-2.5-flash)"
+    )
+    enrich_parser.add_argument(
         "--only-if-missing",
         action="store_true",
         help="Only enrich samples with missing critical fields",
@@ -897,6 +930,18 @@ Examples:
     )
     batch_parser.add_argument(
         "--claude-model", help="Claude model name (default: claude-sonnet-4-5-20250929)"
+    )
+    batch_parser.add_argument(
+        "--gemini", action="store_true", help="Use Gemini via Vertex AI (reads project from GOOGLE_CLOUD_PROJECT env)"
+    )
+    batch_parser.add_argument(
+        "--gemini-project", help="Google Cloud project ID for Vertex AI (or set GOOGLE_CLOUD_PROJECT)"
+    )
+    batch_parser.add_argument(
+        "--gemini-location", default="us-central1", help="GCP region for Vertex AI (default: us-central1)"
+    )
+    batch_parser.add_argument(
+        "--gemini-model", default="gemini-2.5-flash", help="Gemini model name (default: gemini-2.5-flash)"
     )
     batch_parser.add_argument(
         "--workers", type=int, default=4, help="Concurrent API requests (default: 4, ignored for local models)"

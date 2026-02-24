@@ -24,6 +24,9 @@ dev = [
     "pytest-mock>=3.12",
     "ruff>=0.1",
 ]
+gemini = [
+    "google-genai>=1.0.0",
+]
 
 [project.scripts]
 omics-extract = "omics_extractor.cli:main"

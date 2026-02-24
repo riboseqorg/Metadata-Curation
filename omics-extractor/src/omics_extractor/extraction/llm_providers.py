@@ -3,6 +3,7 @@
 This module provides a pluggable interface for different LLM providers,
 allowing easy switching between:
 - Claude API (Anthropic)
+- Gemini via Google Vertex AI
 - Local models via VLLM (Llama, Mixtral, Qwen, etc.)
 - Local models via Transformers
 - Other APIs (OpenAI, etc.)
@@ -157,6 +158,105 @@ class ClaudeProvider(LLMProvider):
 
     def supports_batching(self) -> bool:
         return False  # Claude API doesn't support true batching
+
+
+class GeminiProvider(LLMProvider):
+    """Google Gemini via Vertex AI provider."""
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        location: str = "us-central1",
+        model: str = "gemini-2.5-flash",
+    ):
+        """
+        Initialize Gemini provider via Vertex AI.
+
+        Args:
+            project: Google Cloud project ID (or from GOOGLE_CLOUD_PROJECT env)
+            location: GCP region (default: us-central1)
+            model: Gemini model name (default: gemini-2.5-flash)
+        """
+        self.project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        if not self.project:
+            raise ValueError(
+                "Google Cloud project required. Set GOOGLE_CLOUD_PROJECT or pass --gemini-project"
+            )
+        self.location = location or os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        self.model = model
+
+        try:
+            from google import genai
+            from google.genai.types import HttpOptions
+        except ImportError:
+            raise ImportError(
+                "google-genai not installed. Install with: pip install google-genai"
+            )
+
+        self.client = genai.Client(
+            vertexai=True,
+            project=self.project,
+            location=self.location,
+            http_options=HttpOptions(api_version="v1"),
+        )
+
+    def extract(
+        self,
+        prompt: str,
+        temperature: float = 0.0,
+        max_tokens: int = 1000,
+    ) -> LLMExtractionResult:
+        """Extract using Gemini via Vertex AI."""
+        import time
+
+        start = time.time()
+
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+        )
+
+        latency_ms = (time.time() - start) * 1000
+        response_text = response.text
+
+        try:
+            data = json.loads(response_text)
+        except json.JSONDecodeError:
+            if "```json" in response_text:
+                json_str = response_text.split("```json")[1].split("```")[0].strip()
+                data = json.loads(json_str)
+            else:
+                raise ValueError(f"Failed to parse JSON from Gemini response: {response_text}")
+
+        tokens_used = None
+        try:
+            tokens_used = response.usage_metadata.total_token_count
+        except Exception:
+            pass
+
+        return LLMExtractionResult(
+            organism=data.get("organism"),
+            tissue=data.get("tissue"),
+            cell_type=data.get("cell_type"),
+            cell_line=data.get("cell_line"),
+            treatment=data.get("treatment"),
+            genotype=data.get("genotype"),
+            strain=data.get("strain"),
+            age=data.get("age"),
+            sex=data.get("sex"),
+            developmental_stage=data.get("developmental_stage"),
+            confidence=data.get("confidence", {}),
+            reasoning=data.get("reasoning"),
+            model_name=self.model,
+            tokens_used=tokens_used,
+            latency_ms=latency_ms,
+        )
+
+    def get_model_name(self) -> str:
+        return self.model
+
+    def supports_batching(self) -> bool:
+        return False
 
 
 class VLLMProvider(LLMProvider):
@@ -404,7 +504,7 @@ def create_provider(
     Create an LLM provider.
 
     Args:
-        provider_type: Type of provider ("claude", "vllm", "transformers")
+        provider_type: Type of provider ("claude", "gemini", "vllm", "transformers")
         **kwargs: Provider-specific arguments
 
     Returns:
@@ -414,6 +514,9 @@ def create_provider(
         # Claude API
         provider = create_provider("claude", api_key="sk-ant-...")
 
+        # Gemini via Vertex AI
+        provider = create_provider("gemini", project="my-gcp-project", location="europe-west2")
+
         # VLLM on A100
         provider = create_provider("vllm", model_path="meta-llama/Llama-3.1-70B-Instruct")
 
@@ -422,6 +525,8 @@ def create_provider(
     """
     if provider_type == "claude":
         return ClaudeProvider(**kwargs)
+    elif provider_type == "gemini":
+        return GeminiProvider(**kwargs)
     elif provider_type == "vllm":
         return VLLMProvider(**kwargs)
     elif provider_type == "transformers":
