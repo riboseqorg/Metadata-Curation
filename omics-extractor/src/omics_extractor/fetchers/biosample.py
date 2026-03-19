@@ -4,10 +4,12 @@ from typing import Optional, Dict
 from pydantic import BaseModel, Field
 from Bio import Entrez
 import xml.etree.ElementTree as ET
+from .entrez_config import configure as _configure_entrez, rate_limit
+
+# Configure Entrez once per process
+_configure_entrez()
 
 
-# Set your email for NCBI Entrez (required by NCBI)
-Entrez.email = "jackcurragh@gmail.com"
 
 
 class BioSampleMetadata(BaseModel):
@@ -18,6 +20,7 @@ class BioSampleMetadata(BaseModel):
     organism: Optional[str] = Field(None, description="Organism name")
     attributes: Dict[str, str] = Field(default_factory=dict, description="Sample attributes")
     description: Optional[str] = Field(None, description="Sample description")
+    package: Optional[str] = Field(None, description="BioSample package")
     bioproject_id: Optional[str] = Field(None, description="Parent BioProject")
 
 
@@ -43,6 +46,8 @@ def fetch_biosample_metadata(biosample_id: str) -> BioSampleMetadata:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         if int(search_results["Count"]) == 0:
             raise ValueError(f"BioSample {biosample_id} not found")
 
@@ -51,6 +56,8 @@ def fetch_biosample_metadata(biosample_id: str) -> BioSampleMetadata:
         handle = Entrez.efetch(db="biosample", id=biosample_uid, rettype="full", retmode="xml")
         xml_data = handle.read()
         handle.close()
+
+        rate_limit()
 
         # Parse XML
         root = ET.fromstring(xml_data)
@@ -98,6 +105,12 @@ def _parse_biosample_xml(root: ET.Element, biosample_id: str) -> BioSampleMetada
         if comment_elem is not None and comment_elem.find(".//Paragraph") is not None:
             description = comment_elem.findtext(".//Paragraph")
 
+    # Extract package
+    package = None
+    pkg_elem = biosample.find(".//Package")
+    if pkg_elem is not None and pkg_elem.text:
+        package = pkg_elem.text
+
     # Extract attributes
     attributes = {}
     attributes_elem = biosample.find(".//Attributes")
@@ -131,5 +144,6 @@ def _parse_biosample_xml(root: ET.Element, biosample_id: str) -> BioSampleMetada
         organism=organism,
         attributes=attributes,
         description=description,
+        package=package,
         bioproject_id=bioproject_id,
     )

@@ -16,6 +16,13 @@ from typing import Dict, Any, Optional, List
 import json
 import os
 from .llm_schemas import LLMExtractionResult
+from ..enrich.providers.server_vllm import ServerVLLMProvider
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Unified default Claude model (override via CLAUDE_MODEL env)
+DEFAULT_CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-3-5-sonnet-20241022")
 
 
 class LLMProvider(ABC):
@@ -80,14 +87,14 @@ class ClaudeProvider(LLMProvider):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "claude-3-5-sonnet-latest",
+        model: str = DEFAULT_CLAUDE_MODEL,
     ):
         """
         Initialize Claude provider.
 
         Args:
             api_key: Anthropic API key (or from ANTHROPIC_API_KEY env)
-            model: Claude model to use (default: claude-sonnet-4-5-20250929 - Claude 4.5 Sonnet)
+            model: Claude model to use (default: DEFAULT_CLAUDE_MODEL or CLAUDE_MODEL env)
         """
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not self.api_key:
@@ -215,6 +222,7 @@ class GeminiProvider(LLMProvider):
             model=self.model,
             contents=prompt,
         )
+        logger.debug("Gemini raw response text length=%s", len(getattr(response, 'text', '') or ''))
 
         latency_ms = (time.time() - start) * 1000
         response_text = response.text
@@ -259,14 +267,15 @@ class GeminiProvider(LLMProvider):
         return False
 
 
-class VLLMProvider(LLMProvider):
-    """VLLM provider for local models on GPU (A100, etc.)."""
+class TransformersProvider(LLMProvider):
+    """Local Transformers provider with env-gated trust_remote_code."""
 
     def __init__(
         self,
         model_path: str = "meta-llama/Llama-3.1-70B-Instruct",
         tensor_parallel_size: int = 1,
         gpu_memory_utilization: float = 0.9,
+        trust_remote_code: Optional[bool] = None,
     ):
         """
         Initialize VLLM provider.
@@ -277,140 +286,13 @@ class VLLMProvider(LLMProvider):
             gpu_memory_utilization: Fraction of GPU memory to use
         """
         self.model_path = model_path
-
-        # Lazy import VLLM (only needed for local models)
-        try:
-            from vllm import LLM, SamplingParams
-            self.LLM = LLM
-            self.SamplingParams = SamplingParams
-        except ImportError:
-            raise ImportError(
-                "VLLM not installed. Install with: pip install vllm\n"
-                "For A100 deployment, VLLM provides the best performance."
-            )
-
-        # Auto-detect and validate GPU count
+        # Resolve device lazily; default to CUDA if available and requested
+        requested_device = kwargs.get('device', 'cuda') if 'device' in kwargs else 'cuda'
         try:
             import torch
-            num_gpus = torch.cuda.device_count()
-
-            if tensor_parallel_size > num_gpus:
-                print(f"⚠️  Warning: tensor_parallel_size={tensor_parallel_size} but only {num_gpus} GPU(s) available")
-                print(f"   Auto-adjusting to tensor_parallel_size={num_gpus}")
-                tensor_parallel_size = num_gpus
-
-            if tensor_parallel_size > 1:
-                print(f"Using {tensor_parallel_size} GPUs for tensor parallelism")
-        except:
-            pass  # Proceed with user-provided value if detection fails
-
-        # Initialize model (this caches after first load)
-        print(f"Loading {model_path} with VLLM (this may take a few minutes)...")
-        self.llm = self.LLM(
-            model=model_path,
-            tensor_parallel_size=tensor_parallel_size,
-            gpu_memory_utilization=gpu_memory_utilization,
-            trust_remote_code=True,  # For some models like Qwen
-        )
-        print(f"Model loaded successfully!")
-
-    def extract(
-        self,
-        prompt: str,
-        temperature: float = 0.0,
-        max_tokens: int = 1000,
-    ) -> LLMExtractionResult:
-        """Extract using VLLM (single prompt)."""
-        results = self.extract_batch([prompt], temperature, max_tokens)
-        return results[0]
-
-    def extract_batch(
-        self,
-        prompts: List[str],
-        temperature: float = 0.0,
-        max_tokens: int = 1000,
-    ) -> List[LLMExtractionResult]:
-        """Extract using VLLM (batched for efficiency)."""
-        import time
-
-        start = time.time()
-
-        # VLLM sampling parameters
-        sampling_params = self.SamplingParams(
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=0.95 if temperature > 0 else 1.0,
-        )
-
-        # Generate (VLLM automatically batches)
-        outputs = self.llm.generate(prompts, sampling_params)
-
-        latency_ms = (time.time() - start) * 1000
-        avg_latency = latency_ms / len(prompts)
-
-        # Parse outputs
-        results = []
-        for output in outputs:
-            response_text = output.outputs[0].text
-
-            try:
-                data = json.loads(response_text)
-            except json.JSONDecodeError:
-                # Try to extract JSON from markdown
-                if "```json" in response_text:
-                    json_str = response_text.split("```json")[1].split("```")[0].strip()
-                    data = json.loads(json_str)
-                else:
-                    # Failed to parse - return empty result
-                    data = {}
-
-            result = LLMExtractionResult(
-                organism=data.get("organism"),
-                tissue=data.get("tissue"),
-                cell_type=data.get("cell_type"),
-                cell_line=data.get("cell_line"),
-                treatment=data.get("treatment"),
-                genotype=data.get("genotype"),
-                strain=data.get("strain"),
-                age=data.get("age"),
-                sex=data.get("sex"),
-                developmental_stage=data.get("developmental_stage"),
-                confidence=data.get("confidence", {}),
-                reasoning=data.get("reasoning"),
-                model_name=self.model_path,
-                tokens_used=len(output.outputs[0].token_ids),
-                latency_ms=avg_latency,
-            )
-            results.append(result)
-
-        return results
-
-    def get_model_name(self) -> str:
-        return self.model_path
-
-    def supports_batching(self) -> bool:
-        return True  # VLLM has excellent batching support
-
-
-class TransformersProvider(LLMProvider):
-    """HuggingFace Transformers provider (CPU/GPU, slower than VLLM)."""
-
-    def __init__(
-        self,
-        model_path: str = "meta-llama/Llama-3.1-8B-Instruct",
-        device: str = "cuda",
-        load_in_8bit: bool = False,
-    ):
-        """
-        Initialize Transformers provider.
-
-        Args:
-            model_path: HuggingFace model path
-            device: Device to run on (cuda/cpu)
-            load_in_8bit: Use 8-bit quantization for memory efficiency
-        """
-        self.model_path = model_path
-        self.device = device
+            self.device = 'cuda' if (requested_device == 'cuda' and torch.cuda.is_available()) else 'cpu'
+        except Exception:
+            self.device = 'cpu'
 
         try:
             from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -418,15 +300,27 @@ class TransformersProvider(LLMProvider):
         except ImportError:
             raise ImportError("transformers not installed. Install with: pip install transformers torch")
 
-        print(f"Loading {model_path} with Transformers...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # Gate trust_remote_code via env or arg
+        def _as_bool(x):
+            if x is None:
+                return None
+            if isinstance(x, bool):
+                return x
+            s = str(x).strip().lower()
+            return s in ('1','true','yes','y','on')
+        trust = _as_bool(trust_remote_code)
+        if trust is None:
+            trust = _as_bool(os.getenv('VLLM_TRUST_REMOTE_CODE', '1'))
+
+        logger.info("Loading %s with Transformers (trust_remote_code=%s)...", model_path, bool(trust))
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=bool(trust))
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            load_in_8bit=load_in_8bit,
-            device_map="auto" if device == "cuda" else None,
-            torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+            trust_remote_code=bool(trust),
+            device_map="auto" if self.device == "cuda" else None,
+            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
         )
-        print(f"Model loaded!")
+        logger.info("Model loaded: %s", self.model_path)
 
     def extract(
         self,
@@ -492,7 +386,7 @@ class TransformersProvider(LLMProvider):
         return self.model_path
 
     def supports_batching(self) -> bool:
-        return False  # Could implement, but VLLM is better for batching
+        return False
 
 
 # Factory function to create providers
@@ -528,8 +422,11 @@ def create_provider(
     elif provider_type == "gemini":
         return GeminiProvider(**kwargs)
     elif provider_type == "vllm":
-        return VLLMProvider(**kwargs)
+        # For now, use Transformers as the local in-process default; server-vllm is available separately.
+        return TransformersProvider(**kwargs)
     elif provider_type == "transformers":
         return TransformersProvider(**kwargs)
+    elif provider_type == "server-vllm":
+        return ServerVLLMProvider(**kwargs)
     else:
         raise ValueError(f"Unknown provider type: {provider_type}")

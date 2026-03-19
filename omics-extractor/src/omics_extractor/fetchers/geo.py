@@ -4,6 +4,10 @@ from typing import Optional, Dict
 from pydantic import BaseModel, Field
 import GEOparse
 import re
+from Bio import Entrez
+from .entrez_config import configure as _configure_entrez, rate_limit, with_retries
+
+_configure_entrez()
 
 
 class GEOProjectMetadata(BaseModel):
@@ -12,6 +16,7 @@ class GEOProjectMetadata(BaseModel):
     gse_id: str = Field(description="GEO Series accession (GSE...)")
     title: str = Field(description="Project title")
     summary: str = Field(description="Project summary/description")
+    overall_design: Optional[str] = Field(None, description="Series overall design")
     organism: str = Field(description="Organism(s) studied")
 
     # Optional fields
@@ -63,6 +68,7 @@ def fetch_project_metadata(gse_id: str) -> GEOProjectMetadata:
         # Get basic info
         title = metadata.get("title", [""])[0]
         summary = metadata.get("summary", [""])[0]
+        overall_design = metadata.get("overall_design", [None])[0]
         organism = metadata.get("organism", [""])[0]
 
         # Get optional fields
@@ -86,6 +92,7 @@ def fetch_project_metadata(gse_id: str) -> GEOProjectMetadata:
             gse_id=gse_id,
             title=title,
             summary=summary,
+            overall_design=overall_design,
             organism=organism,
             pubmed_id=pubmed_id,
             bioproject_id=bioproject_id,
@@ -133,6 +140,21 @@ def fetch_sample_metadata(gsm_id: str) -> GEOSampleMetadata:
 
         # Extract characteristics
         characteristics = {}
+
+        # Extract protocols and molecule
+        protocols: Dict[str, str] = {}
+        # Known protocol keys per channel
+        for ch in ("ch1", "ch2"):
+            for kind in ("growth_protocol", "extract_protocol", "treatment_protocol"):
+                key = f"{kind}_{ch}"
+                if key in metadata:
+                    protocols[f"{kind.split('_')[0]}_{ch}"] = " ".join(metadata[key])
+        molecule = None
+        for ch in ("molecule_ch1", "molecule_ch2"):
+            if ch in metadata and metadata[ch]:
+                molecule = metadata[ch][0]
+                break
+
         char_keys = [k for k in metadata.keys() if k.startswith("characteristics_ch")]
         for key in char_keys:
             for char in metadata[key]:
@@ -157,6 +179,8 @@ def fetch_sample_metadata(gsm_id: str) -> GEOSampleMetadata:
             title=title,
             description=description,
             characteristics=characteristics,
+            protocols=protocols,
+            molecule=molecule,
             source_name=source_name,
             organism=organism,
             biosample_id=biosample_id,
@@ -169,3 +193,37 @@ def fetch_sample_metadata(gsm_id: str) -> GEOSampleMetadata:
         raise ValueError(f"Error fetching GEO Sample {gsm_id}: {e}")
 
 
+def search_geo_series(organism: str, terms: Optional[list[str]] = None, boolean_query: Optional[str] = None, retmax: int = 2000) -> list[str]:
+    """Search GEO series (GSE) IDs by organism + terms/boolean query via Entrez GDS.
+
+    Returns a list of GSE accessions (e.g., GSE12345).
+    """
+    q_org = f"{organism}[Organism]"
+    q_terms = ""
+    if boolean_query:
+        q_terms = f" AND ({boolean_query})"
+    elif terms:
+        ors = " OR ".join(terms)
+        q_terms = f" AND ({ors})"
+    # Limit to series
+    q_full = f"{q_org}{q_terms} AND gse[ETYP]"
+    try:
+        res = with_retries(lambda: Entrez.esearch(db="gds", term=q_full, retmax=retmax), read=True)
+        ids = res.get("IdList", [])
+        if not ids:
+            return []
+        # ESummary to get accessions
+        summ = with_retries(lambda: Entrez.esummary(db="gds", id=",".join(ids)), read=True)
+        gses = []
+        for doc in summ:
+            acc = doc.get('Accession') or doc.get('GSE') or ''
+            if acc and acc.startswith('GSE'):
+                gses.append(acc)
+        # unique
+        seen = set(); out = []
+        for g in gses:
+            if g in seen: continue
+            seen.add(g); out.append(g)
+        return out
+    except Exception:
+        return []

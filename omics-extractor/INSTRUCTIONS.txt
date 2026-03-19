@@ -3,7 +3,7 @@
 ===============================================================================
 
 This benchmark compares baseline extraction vs Claude API enrichment.
-Model: claude-sonnet-4-5-20250929 (Claude 4.5 Sonnet - Sept 2025)
+Model: claude-3-5-sonnet-20241022 (or CLAUDE_MODEL env)
 
 NOTE: Local 70B models (Llama, Qwen, Mixtral) require A100 GPU.
       See BENCHMARK_STATUS.md for Mac vs A100 options.

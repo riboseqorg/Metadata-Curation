@@ -1,0 +1,15 @@
+{
+  "study": {
+    "title": {"value": "Smoke Test Ribo-seq Study"},
+    "description": {"value": "Ribosome profiling of HEK293 cells with cycloheximide and RNase I digestion."}
+  },
+  "samples": {
+    "SRS_SMOKE": {
+      "sample_id": "SRS_SMOKE",
+      "bioproject_id": "PRJNA_SMOKE",
+      "organism": {"value": "Homo sapiens", "source": "biosample", "source_id": "SRS_SMOKE", "confidence": 1.0},
+      "raw_biosample_attributes": {"tissue": "liver", "cell line": "HEK293", "treatment": "cycloheximide"},
+      "technical_context": {"library_strategy": "Ribo-Seq", "platform": "ILLUMINA"}
+    }
+  }
+}

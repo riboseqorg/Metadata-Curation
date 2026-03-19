@@ -27,6 +27,10 @@ dev = [
 gemini = [
     "google-genai>=1.0.0",
 ]
+ui = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.25",
+]
 
 [project.scripts]
 omics-extract = "omics_extractor.cli:main"

@@ -33,6 +33,12 @@ omics-extract extract PRJNA1170270
 # Phase 2: Enrich with LLM (fill gaps)
 omics-extract enrich PRJNA1170270_metadata.json --model mistral-7b
 
+# Or use local vLLM explicitly (recommended for GPUs)
+omics-extract enrich PRJNA1170270_metadata.json --provider vllm --model /path/to/Qwen2.5-7B-Instruct
+
+# Or a shared server-vLLM endpoint
+omics-extract enrich PRJNA1170270_metadata.json --provider server-vllm --server-url http://vllm-host:8000 --model Qwen2.5-7B-Instruct
+
 # Phase 3: Generate Reports
 # Create a summary of metadata improvement
 omics-extract report "*_enriched.json" --format summary
@@ -375,3 +381,18 @@ ruff check src/
 ## License
 
 See LICENSE file.
+
+
+### Normalize and Export (New)
+
+# Re-run ontology normalization on an existing JSON (Phase 1.5)
+omics-extract normalize data/stage1.json --out data/stage1_norm.json --strict
+
+# Export a wide TSV for analytics
+omics-extract export data/stage2_enriched.json --format tsv --out tables/study.tsv
+
+### LLM Grounding Options
+
+# Include ontology shortlists (top-5) and few-shot exemplars (auto by library strategy)
+omics-extract enrich data/stage1_norm.json --provider vllm --model /models/Qwen2.5-7B-Instruct \
+  --ontology-shortlist 5 --few-shot auto --only-if-missing

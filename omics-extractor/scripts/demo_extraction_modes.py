@@ -119,7 +119,7 @@ def demo_enriched_mode(project_id: str):
 
     if samples_needing_llm:
         # Create provider
-        provider = create_provider("claude", model="claude-sonnet-4-5-20250929")
+        provider = create_provider("claude")
 
         # Show first sample needing enrichment
         sample_id, sample = samples_needing_llm[0]
@@ -193,7 +193,7 @@ def demo_comprehensive_mode(project_id: str):
     print()
 
     try:
-        provider = create_provider("claude", model="claude-sonnet-4-5-20250929")
+        provider = create_provider("claude")
 
         analysis = analyze_project_design(study, samples, provider)
 

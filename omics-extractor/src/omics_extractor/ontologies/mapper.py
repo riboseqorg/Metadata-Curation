@@ -55,14 +55,20 @@ class OlsClient:
         except Exception:
             pass  # Ignore cache write errors
 
-    def search(self, query: str, ontology: str) -> Optional[Tuple[str, str, float]]:
+    def search(self, query: str, ontology: str, rows: int = 1):
         """
         Search OLS for a term.
-        
+
+        Args:
+            query: free-text query
+            ontology: ontology short name (uberon, cl, efo, ...)
+            rows: max number of results to return (1 returns a single tuple; >1 returns a list)
+
         Returns:
-            Tuple(label, obo_id, score_confidence) or None
+            If rows == 1: Tuple(label, obo_id, score_confidence) or None
+            If rows > 1: List[Tuple(label, obo_id, score_confidence)] (possibly empty)
         """
-        cache_key = f"{ontology}:{query.lower().strip()}"
+        cache_key = f"{ontology}:{rows}:{query.lower().strip()}"
         
         # Check cache (valid for 30 days)
         if cache_key in self.cache:
@@ -75,7 +81,7 @@ class OlsClient:
             params = {
                 "q": query,
                 "ontology": ontology.lower(),
-                "rows": 1,
+                "rows": max(1, int(rows or 1)),
                 "type": "class",
                 "exact": "false"
             }
@@ -87,33 +93,35 @@ class OlsClient:
                 docs = data.get("response", {}).get("docs", [])
                 
                 if docs:
-                    best_match = docs[0]
-                    label = best_match.get("label")
-                    obo_id = best_match.get("obo_id")
-                    
-                    # Calculate simple confidence
-                    sim_score = SequenceMatcher(None, query.lower(), label.lower()).ratio()
-                    
-                    if sim_score == 1.0:
-                        conf = 1.0
-                    elif query.lower() == label.lower():
-                        conf = 1.0
-                    elif sim_score > 0.9:
-                        conf = 0.95
-                    elif sim_score > 0.8:
-                        conf = 0.9
+                    def _score(lbl: str) -> float:
+                        sim_score = SequenceMatcher(None, query.lower(), lbl.lower()).ratio()
+                        if sim_score == 1.0 or query.lower() == lbl.lower():
+                            return 1.0
+                        if sim_score > 0.9:
+                            return 0.95
+                        if sim_score > 0.8:
+                            return 0.9
+                        return 0.7
+
+                    if max(1, int(rows or 1)) == 1:
+                        best_match = docs[0]
+                        label = best_match.get("label")
+                        obo_id = best_match.get("obo_id")
+                        result = (label, obo_id, _score(label))
                     else:
-                        conf = 0.7
-                        
-                    result = (label, obo_id, conf)
-                    
+                        result = []
+                        for d in docs[: max(1, int(rows or 1))]:
+                            lbl = d.get("label")
+                            oid = d.get("obo_id")
+                            if lbl and oid:
+                                result.append((lbl, oid, _score(lbl)))
+
                     # Cache result
                     self.cache[cache_key] = {
                         "value": result,
-                        "timestamp": time.time()
+                        "timestamp": time.time(),
                     }
                     self._save_cache()
-                    
                     return result
 
         except Exception as e:
@@ -239,6 +247,26 @@ class OntologyMapper:
         # NCBITaxon is too big for pronto usually, so skip local loading
         return raw_value, None, 0.5
 
+    def map_treatment(self, raw_value: str):
+        """Map treatment using EFO first, then CHEBI as fallback."""
+        result = self.ols_client.search(raw_value, "efo")
+        if result:
+            return result
+        result = self.ols_client.search(raw_value, "chebi")
+        if result:
+            return result
+        return raw_value, None, 0.5
+
+    def map_disease(self, raw_value: str):
+        """Map disease using MONDO, then DOID as fallback."""
+        result = self.ols_client.search(raw_value, "mondo")
+        if result:
+            return result
+        result = self.ols_client.search(raw_value, "doid")
+        if result:
+            return result
+        return raw_value, None, 0.5
+
 
 # Singleton mapper instance
 _mapper: Optional[OntologyMapper] = None
@@ -266,3 +294,12 @@ def normalize_organism(raw_value: str) -> Tuple[str, Optional[str], float]:
     """Normalize organism using NCBITaxon."""
     return get_mapper().map_organism(raw_value)
 
+
+
+
+def normalize_treatment(raw_value: str):
+    return get_mapper().map_treatment(raw_value)
+
+
+def normalize_disease(raw_value: str):
+    return get_mapper().map_disease(raw_value)

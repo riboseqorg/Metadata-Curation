@@ -4,10 +4,12 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from Bio import Entrez
 import xml.etree.ElementTree as ET
+from .entrez_config import configure as _configure_entrez, rate_limit
+
+# Configure Entrez once per process
+_configure_entrez()
 
 
-# Set your email for NCBI Entrez (required by NCBI)
-Entrez.email = "jackcurragh@gmail.com"
 
 
 class BioProjectMetadata(BaseModel):
@@ -45,6 +47,8 @@ def fetch_bioproject_metadata(bioproject_id: str) -> BioProjectMetadata:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         if int(search_results["Count"]) == 0:
             raise ValueError(f"BioProject {bioproject_id} not found")
 
@@ -53,6 +57,8 @@ def fetch_bioproject_metadata(bioproject_id: str) -> BioProjectMetadata:
         handle = Entrez.efetch(db="bioproject", id=bioproject_uid, rettype="xml")
         xml_data = handle.read()
         handle.close()
+
+        rate_limit()
 
         # Parse XML
         root = ET.fromstring(xml_data)

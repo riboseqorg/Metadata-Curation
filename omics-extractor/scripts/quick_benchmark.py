@@ -73,7 +73,7 @@ def compare_extraction_methods(project_id: str):
     
     try:
         # Create Claude provider (using Claude 4.5 Sonnet)
-        provider = create_provider("claude", model="claude-sonnet-4-5-20250929")
+        provider = create_provider("claude")
         
         # Test on first sample
         if samples:

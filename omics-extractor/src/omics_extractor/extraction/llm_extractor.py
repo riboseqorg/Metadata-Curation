@@ -5,14 +5,18 @@ from pydantic import BaseModel, Field
 import anthropic
 import os
 import json
+import logging
 
 from ..schemas.base import BaseProvenance, SampleMetadata
+from ..context.context_builder import compose_llm_context, ContextOpts
 from ..ontologies.mapper import normalize_tissue, normalize_cell_type, normalize_organism
 
 
 from pathlib import Path
 import yaml
 from .llm_schemas import LLMExtractionResult
+
+logger = logging.getLogger(__name__)
 
 
 def load_extraction_scheme(scheme_name: str) -> Dict[str, str]:
@@ -50,6 +54,7 @@ def build_extraction_prompt(
     publication_date: Optional[str] = None,
     existing_metadata: Optional[Dict[str, Any]] = None,
     fields: Optional[Dict[str, str]] = None,
+    extra_context: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
     Build a prompt for Claude to extract sample metadata.
@@ -113,6 +118,12 @@ PUBLICATION ABSTRACT:
 ALREADY EXTRACTED (do not duplicate):
 {json.dumps(existing_metadata, indent=2)}
 """
+    if extra_context:
+        # Attach extended context blocks (GEO overall design, protocols, etc.)
+        prompt += f"""
+ADDITIONAL CONTEXT (from GEO/BioProject/PubMed):
+{json.dumps(extra_context, indent=2)}
+"""
 
     # Use provided fields or default biosample attributes
     if not fields:
@@ -141,7 +152,7 @@ IMPORTANT:
 
 Return only the JSON object, no other text.
 """
-    print(prompt)
+    logger.debug("LLM extraction prompt:\n%s", prompt)
     return prompt
 
 
@@ -238,6 +249,7 @@ def enrich_sample_metadata(
     source_id: str = "llm",
     api_key: Optional[str] = None,
     scheme: str = "default",
+    extra_sections: Optional[Dict[str, str]] = None,
 ) -> SampleMetadata:
     """
     Enrich existing sample metadata with LLM extraction.
@@ -292,6 +304,7 @@ def enrich_sample_metadata(
     # Extract with LLM (provider or Claude)
     if provider is not None:
         # Use generic provider interface (returns LLMExtractionResult directly)
+        # Compose additional context using the builder (default profile in caller)
         prompt = build_extraction_prompt(
             study_title=study_title,
             study_description=study_description,
@@ -305,6 +318,7 @@ def enrich_sample_metadata(
             publication_date=publication_date,
             existing_metadata=existing,
             fields=fields,
+            extra_context=extra_sections if extra_sections else None,
         )
         llm_result = provider.extract(prompt)
     else:
@@ -329,7 +343,7 @@ def enrich_sample_metadata(
     # This is lower because we're inferring from high-level descriptions
     llm_field_confidence = 0.5
 
-    print(llm_result)
+    logger.debug("LLM extraction result: %s", getattr(llm_result, "model_dump", lambda: llm_result)())
 
     # Apply ontology mapping to LLM-extracted values
     ontology_mappings = {}
@@ -394,4 +408,3 @@ def enrich_sample_metadata(
             sample.custom_fields[field] = llm_val
 
     return sample
-

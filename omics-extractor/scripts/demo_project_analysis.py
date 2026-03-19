@@ -62,7 +62,7 @@ def demo_project_analysis(project_id: str):
 
     try:
         # Create provider
-        provider = create_provider("claude", model="claude-sonnet-4-5-20250929")
+        provider = create_provider("claude")
 
         print(f"  Analyzing with {provider.get_model_name()}...")
         print(f"  (This may take 10-20 seconds for comprehensive analysis)")

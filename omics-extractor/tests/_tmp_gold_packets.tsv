@@ -1,0 +1,2 @@
+bioproject_id	sample_id	study_title	study_description	sample_title	sample_description	gold_organism	gold_tissue	gold_cell_type	gold_cell_line	gold_treatment	gold_disease	gold_genotype	gold_strain	gold_age	gold_sex	gold_developmental_stage
+PRJNA000000	S1	Dummy study	Desc													

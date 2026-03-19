@@ -81,7 +81,15 @@ def build_study_metadata(bioproject_id: str, gse_id: Optional[str] = None) -> St
             ),
         )
 
-        # Enhance with GEO metadata if available (GEO descriptions sometimes better)
+        # Enhance with GEO metadata if available
+        # Initialize custom_fields for extra context
+        study.custom_fields = (study.custom_fields or {})
+        if geo_meta and getattr(geo_meta, 'overall_design', None):
+            study.custom_fields['geo_overall_design'] = geo_meta.overall_design
+        if bioproject_meta and getattr(bioproject_meta, 'data_type', None):
+            study.custom_fields['bioproject_data_type'] = bioproject_meta.data_type
+        if bioproject_meta and getattr(bioproject_meta, 'scope', None):
+            study.custom_fields['bioproject_scope'] = bioproject_meta.scope
         if geo_meta:
             # Use GEO description if BioProject description is missing or GEO has more details
             if not bioproject_meta.description or (geo_meta.summary and len(geo_meta.summary) > len(bioproject_meta.description or "")):
@@ -181,6 +189,10 @@ def build_study_metadata(bioproject_id: str, gse_id: Optional[str] = None) -> St
                 confidence=1.0,
                 extraction_method="structured_field",
             )
+            # Save MeSH keywords into custom_fields for context
+            study.custom_fields = (study.custom_fields or {})
+            if getattr(pub_meta, "keywords", None):
+                study.custom_fields["pubmed_mesh"] = pub_meta.keywords
             if pub_meta.doi:
                 study.doi = BaseProvenance(
                     value=pub_meta.doi,
@@ -219,12 +231,21 @@ def _build_from_biosample(
         SampleMetadata with provenance from BioSample
     """
     # Use enhanced extractor with field_mappings
-    return extract_sample_with_field_mappings(
+    sample = extract_sample_with_field_mappings(
         biosample_meta,
         organism_from_sra,
         sample_id=sample_id,
         bioproject_id=bioproject_id
     )
+    # Fallback description and package
+    if getattr(biosample_meta, "description", None) and not getattr(sample, "sample_description", None):
+        from ..schemas.base import BaseProvenance
+        sample.sample_description = BaseProvenance(value=biosample_meta.description, source="biosample", source_id=biosample_meta.biosample_id, confidence=0.8)
+    pkg = getattr(biosample_meta, "package", None)
+    if pkg:
+        sample.custom_fields = (sample.custom_fields or {})
+        sample.custom_fields["biosample_package"] = pkg
+    return sample
 
 
 def build_sample_metadata(
@@ -310,6 +331,17 @@ def build_sample_metadata(
         ) if geo_sample.description else None,
         raw_characteristics=geo_sample.characteristics,
     )
+
+    # Attach protocols/molecule into custom_fields if present
+    if getattr(geo_sample, "molecule", None) or getattr(geo_sample, "characteristics", None):
+        sample.custom_fields = (sample.custom_fields or {})
+        if getattr(geo_sample, "molecule", None):
+            sample.custom_fields["molecule"] = geo_sample.molecule
+        if getattr(geo_sample, "characteristics", None) and getattr(geo_sample, "gse_id", None):
+            # protocols were parsed into protocols dict if fetcher set it
+            protos = getattr(geo_sample, "protocols", None)
+            if protos:
+                sample.custom_fields["protocols"] = protos
 
     # Parse characteristics into structured fields
     # Prioritize tissue extraction as requested

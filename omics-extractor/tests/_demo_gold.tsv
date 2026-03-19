@@ -1,0 +1,3 @@
+bioproject_id	sample_id	study_title	study_description	sample_title	sample_description	gold_organism	gold_tissue	gold_cell_type	gold_cell_line	gold_treatment	gold_disease	gold_genotype	gold_strain	gold_age	gold_sex	gold_developmental_stage
+PRJNA_DEMO	S1	Ribo-seq of mouse liver and heart	Ribo-seq on C57BL/6 male mice at P14 across liver and heart tissues. Cycloheximide pretreatment; RNase I digestion; Illumina sequencing.													
+PRJNA_DEMO	S2	Ribo-seq of mouse liver and heart	Ribo-seq on C57BL/6 male mice at P14 across liver and heart tissues. Cycloheximide pretreatment; RNase I digestion; Illumina sequencing.													

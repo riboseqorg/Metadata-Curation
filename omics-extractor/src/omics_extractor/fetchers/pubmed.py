@@ -4,10 +4,12 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from Bio import Entrez
 import xml.etree.ElementTree as ET
+from .entrez_config import configure as _configure_entrez, rate_limit
+
+# Configure Entrez once per process
+_configure_entrez()
 
 
-# Set your email for NCBI Entrez (required by NCBI)
-Entrez.email = "jackcurragh@gmail.com"
 
 
 class PubMedMetadata(BaseModel):
@@ -46,6 +48,8 @@ def fetch_publication_metadata(pmid: str) -> PubMedMetadata:
         handle = Entrez.efetch(db="pubmed", id=pmid, rettype="xml", retmode="xml")
         xml_data = handle.read()
         handle.close()
+
+        rate_limit()
 
         # Parse XML
         root = ET.fromstring(xml_data)
@@ -148,6 +152,8 @@ def search_pubmed_for_project(project_id: str) -> List[str]:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         pmids = search_results.get("IdList", [])
         return pmids
 
@@ -182,6 +188,8 @@ def fetch_full_text_pmc(pmc_id: str) -> Optional[str]:
         handle = Entrez.efetch(db="pmc", id=pmc_id, rettype="xml", retmode="xml")
         xml_data = handle.read()
         handle.close()
+
+        rate_limit()
 
         # Decode bytes to string if needed
         if isinstance(xml_data, bytes):

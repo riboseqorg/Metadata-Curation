@@ -5,10 +5,12 @@ from pydantic import BaseModel, Field
 from Bio import Entrez
 import xml.etree.ElementTree as ET
 import time
+from .entrez_config import configure as _configure_entrez, rate_limit
+
+# Configure Entrez once per process
+_configure_entrez()
 
 
-# Set your email for NCBI Entrez (required by NCBI)
-Entrez.email = "jackcurragh@gmail.com"
 
 
 class SRARunMetadata(BaseModel):
@@ -67,6 +69,8 @@ def fetch_project_runs(project_id: str) -> List[str]:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         if int(search_results["Count"]) == 0:
             return []
 
@@ -83,6 +87,8 @@ def fetch_project_runs(project_id: str) -> List[str]:
         )
         runinfo = handle.read()
         handle.close()
+
+        rate_limit()
 
         # Decode bytes to string if needed
         if isinstance(runinfo, bytes):
@@ -124,6 +130,8 @@ def fetch_run_details(run_id: str) -> SRARunMetadata:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         if int(search_results["Count"]) == 0:
             raise ValueError(f"Run {run_id} not found in SRA database")
 
@@ -133,6 +141,8 @@ def fetch_run_details(run_id: str) -> SRARunMetadata:
         xml_data = handle.read()
         handle.close()
 
+        rate_limit()
+
         # Parse XML
         root = ET.fromstring(xml_data)
 
@@ -140,7 +150,7 @@ def fetch_run_details(run_id: str) -> SRARunMetadata:
         metadata = _parse_sra_xml(root, run_id)
 
         # Rate limiting: NCBI allows 3 requests/second without API key
-        time.sleep(0.34)
+        rate_limit()
 
         return metadata
 
@@ -261,6 +271,8 @@ def _convert_gse_to_bioproject(gse_id: str) -> Optional[str]:
         search_results = Entrez.read(handle)
         handle.close()
 
+        rate_limit()
+
         if int(search_results["Count"]) == 0:
             return None
 
@@ -269,6 +281,8 @@ def _convert_gse_to_bioproject(gse_id: str) -> Optional[str]:
         handle = Entrez.esummary(db="gds", id=geo_id)
         summary = Entrez.read(handle)
         handle.close()
+
+        rate_limit()
 
         # Extract BioProject from relations
         # This is a simplified approach - may need more robust parsing
